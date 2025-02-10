@@ -1,0 +1,124 @@
+version: "3"
+
+tasks:
+  build:
+    desc: "Build collector"
+    cmds:
+      - go build -o bin/collector ./cmd/collector
+
+  run:
+    desc: "Run collector"
+    cmds:
+      - go run ./cmd/collector  
+
+  build-example:
+    desc: "Build example"
+    cmds:
+      - go build -o bin/example ./example
+
+  run-example:
+    desc: "Run example"
+    cmds:
+      - go run ./example
+
+  test:
+    desc: Run tests
+    cmds:
+      - go test -v -race ./...
+
+  lint:
+    desc: Run linter
+    cmds:
+      - golangci-lint run
+
+  clean:
+    desc: Clean build directory
+    cmds:
+      - rm -rf {{.BUILD_DIR}}
+
+  run:
+    desc: Run the application
+    cmds:
+      - go run {{.MAIN_PATH}}
+
+  protodep:
+    desc: Import protobuf dependencies
+    cmds:
+      - protodep up
+
+  protogen:
+    desc: Generate protobuf code
+    cmds:
+      - mkdir -p internal/pb
+      - |
+        which protoc-gen-go > /dev/null || (
+          echo "protoc-gen-go not found. Install with: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest"
+          exit 1
+        )
+      - |
+        which protoc-gen-go-grpc > /dev/null || (
+          echo "protoc-gen-go-grpc not found. Install with: go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest"
+          exit 1
+        )
+      - |
+        which protoc-gen-validate > /dev/null || (
+          echo "protoc-gen-validate not found. Install with: go install github.com/envoyproxy/protoc-gen-validate@latest"
+          exit 1
+        )
+      - |
+        which protoc-gen-grpc-gateway > /dev/null || (
+          echo "protoc-gen-grpc-gateway not found. Install with: go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest"
+          exit 1
+        )
+      - |
+        which protoc-gen-openapiv2 > /dev/null || (
+          echo "protoc-gen-openapiv2 not found. Install with: go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest"
+          exit 1
+        )
+
+      # api
+      - |
+        protoc -I vendor.proto --proto_path=. \
+        --go_out=internal/pb --go_opt=paths=source_relative \
+        --go-grpc_out=internal/pb --go-grpc_opt=paths=source_relative,require_unimplemented_servers=false \
+        --grpc-gateway_out=internal/pb --grpc-gateway_opt=logtostderr=true --grpc-gateway_opt=paths=source_relative \
+        --validate_out=paths=source_relative,lang=go:internal/pb \
+        --openapiv2_out=allow_merge=true,merge_file_name=collector:api/collector \
+        --openapiv2_opt=remove_internal_comments=true \
+        --openapiv2_opt=output_format=yaml \
+        --openapiv2_opt=omit_enum_default_value=true \
+        api/collector/collector.proto
+
+      # kafka
+      - |
+        protoc -I vendor.proto --proto_path=. \
+        --go_out=internal/pb --go_opt=paths=source_relative \
+        api/queue/queue.proto
+
+      # ammoclient test
+      - protoc --go_out=. --go_opt=paths=source_relative pkg/ammoclient/clienttest/client_test.proto
+
+      # example
+      - protoc --go_out=. --go_opt=paths=source_relative example/api/api.proto
+
+  dbmodel:
+    desc: "Generate dbmodel files"
+    cmds:
+      - |
+        xo schema -o ./internal/repository/sql/dbmodel -g='json:"{{`{{ .SQLName }}`}}" db:"{{`{{ .SQLName }}`}}"' \
+        "{{ .AMMO_COLLECTOR_DATABASE_URL }} " --src ./internal/repository/sql/dbmodel/xotempl/
+
+  migrations-up:
+    desc: "Up migrations"
+    cmds:
+      - goose -dir migrations postgres "{{ .AMMO_COLLECTOR_DATABASE_URL }}" up
+
+  migrations-down:
+    desc: "Down migrations"
+    cmds:
+      - goose -dir migrations postgres "{{ .AMMO_COLLECTOR_DATABASE_URL }}" down
+
+  wire:
+    desc: "Generate google wire DI container"
+    cmds:
+      - wire ./internal/prepare/di

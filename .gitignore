@@ -1,0 +1,7 @@
+bin
+.vscode
+.windsurfrules
+.clinerules*
+.cursorrules
+__debug_bin*
+.env

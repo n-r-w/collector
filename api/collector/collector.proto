@@ -1,0 +1,216 @@
+syntax = "proto3";
+
+package ammo.collector;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "validate/validate.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/n-r-w/ammo-collector/api/collector";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+    info: { title: "Ammo Collector API";
+version: "1.0";
+description: "API for managing request content collections";
+contact: {
+name:
+    "Roman Nikulenkov";
+url:
+    "https://github.com/n-r-w/ammo-collector";
+};
+}
+;
+schemes:
+    [HTTP, HTTPS];
+consumes: "application/json";
+produces: "application/json";
+}
+;
+
+// CollectionService provides methods for managing request content collections
+service CollectionService {
+    // CreateTask starts a new collection with specified criteria
+    rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse) {
+        option (google.api.http) = {
+            post: "/v1/collections"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "Create a new collection task"
+            description: "Starts a new collection with specified criteria for message selection and completion"
+            tags: [ "collections" ]
+        };
+    }
+
+    // GetCollections returns all active collections
+    rpc GetCollections(GetCollectionsRequest) returns (GetCollectionsResponse) {
+        option (google.api.http) = {
+            get: "/v1/collections"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "List collections"
+            description: "Returns all collections matching the specified criteria"
+            tags: [ "collections" ]
+        };
+    }
+
+    // GetCollection returns the status of a specific collection
+    rpc GetCollection(GetCollectionRequest) returns (GetCollectionResponse) {
+        option (google.api.http) = {
+            get: "/v1/collections/{collection_id}"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "Get collection details"
+            description: "Returns detailed information about a specific collection"
+            tags: [ "collections" ]
+        };
+    }
+
+    // CancelCollection terminates an active collection
+    rpc CancelCollection(CancelCollectionRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            delete: "/v1/collections/{collection_id}"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "Cancel collection"
+            description: "Terminates an active collection"
+            tags: [ "collections" ]
+        };
+    }
+
+    // GetResult returns the result of a collection as a stream of bytes.
+    rpc GetResult(GetResultRequest) returns (stream GetResultResponse) {
+        option (google.api.http) = {
+            get: "/v1/collections/{collection_id}/result"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "Get collection results"
+            description: "Streams the collected data as chunks of a zip archive"
+            tags: [ "collections" ]
+        };
+    }
+}
+
+// CreateTaskRequest contains parameters for starting a new collection
+message CreateTaskRequest {
+    // Selection criteria for requests to collect
+    MessageSelectionCriteria selection_criteria = 1 [(validate.rules).message.required = true];
+
+    // Completion conditions for the collection
+    CompletionCriteria completion_criteria = 2 [(validate.rules).message.required = true];
+}
+
+// MessageSelectionCriteria defines criteria for selecting messages to collect
+message MessageSelectionCriteria {
+    string handler = 1 [(validate.rules).string = { min_len: 1, max_len: 1024 }];  // HTTP/gRPC handler to match
+    repeated Header header_criteria = 2 [
+        (validate.rules).repeated = { min_items: 0, max_items: 100 }
+    ];  // Header criteria to match against request headers
+}
+
+// Header defines a single header matching criteria
+message Header {
+    string header_name = 1
+        [(validate.rules).string = { min_len: 1, max_len: 255 }];  // Name of the HTTP header to match
+    string pattern = 2 [
+        (validate.rules).string = { min_len: 1, max_len: 1024 }
+    ];  // Regular expression to match against the header value
+}
+
+// CompletionCriteria defines when to complete the collection
+message CompletionCriteria {
+    google.protobuf.Duration time_limit = 1 [(validate.rules).duration = {
+        gt: {},
+        lte: { seconds: 86400 }
+    }];  // Maximum duration for collection (1 day)
+
+    uint32 request_count_limit = 2 [(validate.rules).uint32 = { gt: 0 }];  // Maximum number of requests to collect
+}
+
+// CreateTaskResponse returns information about started collection
+message CreateTaskResponse {
+    // Unique identifier for the collection
+    int64 collection_id = 1;
+}
+
+// GetCollectionsRequest returns collections by filter
+message GetCollectionsRequest {
+    // Statuses to filter by
+    repeated Status statuses = 1 [(validate.rules).repeated = {
+        min_items: 0,
+        max_items: 100,
+        items: { enum: { not_in: [ 0 ] } }
+    }];
+    // Time from which to filter
+    google.protobuf.Timestamp from_time = 2 [(validate.rules).timestamp.required = true];
+    // Time to which to filter
+    google.protobuf.Timestamp to_time = 3 [(validate.rules).timestamp.required = true];
+}
+
+// GetCollectionsResponse contains all active collections
+message GetCollectionsResponse {
+    repeated Collection collections = 1;  // All active collections
+}
+
+// GetCollectionRequest specifies which collection status to return
+message GetCollectionRequest {
+    int64 collection_id = 1;  // Unique identifier for the collection
+}
+
+// GetCollectionResponse contains status information for a collection
+message GetCollectionResponse {
+    Collection collection = 1;  // Collection information
+}
+
+// Status represents possible collection states
+enum Status {
+    STATUS_UNSPECIFIED = 0;  // Unspecified
+    STATUS_PENDING     = 1;  // Collection is created but not yet started
+    STATUS_IN_PROGRESS = 2;  // Collection is currently running
+    STATUS_FINALIZING  = 3;  // Collection is in process of finalizing
+    STATUS_COMPLETED   = 4;  // Collection has finished successfully
+    STATUS_FAILED      = 5;  // Collection has failed
+    STATUS_CANCELLED   = 6;  // Collection was cancelled by user
+}
+
+// Task contains parameters for creating a new collection
+message Task {
+    MessageSelectionCriteria message_selection = 1;  // Criteria for selecting messages
+    CompletionCriteria       completion        = 2;  // Criteria for completing collection
+}
+
+// Collection represents the current state of a collection
+message Collection {
+    int64  collection_id = 1;  // Unique identifier for the collection
+    Status status        = 2;  // Status of the collection
+    Task   task          = 3;  // Collection creation parameters
+    uint64 request_count = 4;  // Number of requests collected
+
+    // Timestamps
+    google.protobuf.Timestamp created_at   = 5;  // When collection was created
+    google.protobuf.Timestamp started_at   = 6;  // When collection was started
+    google.protobuf.Timestamp updated_at   = 7;  // Last update timestamp
+    google.protobuf.Timestamp completed_at = 8;  // When collection reached terminal state
+
+    // Error details
+    string error_message = 9;   // Error message if collection failed
+    uint32 error_code    = 10;  // Error code if collection failed
+}
+
+// CancelCollectionRequest specifies which collection to stop
+message CancelCollectionRequest {
+    int64 collection_id = 1 [(validate.rules).int64 = { gt: 0 }];  // Unique identifier for the collection
+}
+
+// GetResultRequest specifies which collection result to return
+message GetResultRequest {
+    int64 collection_id = 1 [(validate.rules).int64 = { gt: 0 }];  // Unique identifier for the collection
+}
+
+// GetResultResponse contains a chunk of the zip archive content
+message GetResultResponse {
+    bytes content = 1;  // Chunk of bytes from the zip archive
+}

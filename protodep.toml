@@ -1,0 +1,31 @@
+proto_outdir = "./vendor.proto"
+
+[[dependencies]]
+target = "github.com/googleapis/googleapis/google/api"
+revision = "1a0e353ac4a372cf7016df4ce0a7d7e609f339b3"
+includes = ["annotations.proto", "http.proto", "httpbody.proto"]
+path = "google/api"
+
+[[dependencies]]
+target = "github.com/protocolbuffers/protobuf/src/google/protobuf"
+revision = "v29.3"
+includes = [
+  "descriptor.proto",
+  "duration.proto",
+  "empty.proto",
+  "struct.proto",
+  "timestamp.proto",
+]
+path = "google/protobuf"
+
+[[dependencies]]
+target = "github.com/envoyproxy/protoc-gen-validate/validate"
+revision = "v1.2.1"
+includes = ["validate.proto"]
+path = "validate"
+
+[[dependencies]]
+target = "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-openapiv2/options"
+revision = "v2.26.1"
+includes = ["annotations.proto", "openapiv2.proto"]
+path = "protoc-gen-openapiv2/options"

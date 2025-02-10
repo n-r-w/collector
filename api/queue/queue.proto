@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package ammo.collector.queue;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/n-r-w/ammo-collector/api/queue";
+
+// Request represents a single HTTP/gRPC request to be collected
+message Request {
+    // HTTP/GRPC handler name
+    string handler = 1;
+    // Request headers as key-value pairs
+    map<string, Header> headers = 2;
+    // Timestamp when request was received
+    google.protobuf.Timestamp timestamp = 3;
+    // Request body as JSON string
+    string body = 4;
+}
+
+// Header represents a single header
+message Header {
+    // Header content
+    repeated string values = 1;
+}
