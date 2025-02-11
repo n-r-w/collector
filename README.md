@@ -18,6 +18,8 @@ The Ammo Collector service is designed to capture and collect content from HTTP 
 
 *Early beta. Not recommended for production use*
 
+TODO: Full test coverage
+
 ## Architecture Overview
 
 ![File Representation](docs/overview.svg)
