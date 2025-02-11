@@ -14,8 +14,7 @@ import (
 
 // Service implements sql repository.
 type Service struct {
-	connectionGetter db.IConnectionGetter
-	conn             func(ctx context.Context) conn.IConnection
+	conn func(ctx context.Context) conn.IConnection
 }
 
 var (

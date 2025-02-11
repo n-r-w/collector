@@ -10,7 +10,7 @@ import (
 	sq "github.com/n-r-w/squirrel"
 )
 
-// Clean removes all collection data.
+// CleanDatabase removes all collection data.
 func (s *Service) CleanDatabase(ctxMain context.Context, collectionIDs []entity.CollectionID) error {
 	return s.txManager.Begin(ctxMain, func(ctx context.Context) error {
 		return s.cleanDatabaseHelper(ctx, collectionIDs)

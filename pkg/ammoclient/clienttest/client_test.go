@@ -99,7 +99,7 @@ func TestHTTP(t *testing.T) {
 	)
 
 	headersData := map[string][]string{
-		"Content-Type":    {"application/json"},
+		"Content-Type": {"application/json"},
 		"X-Test-Header": {
 			"test header value 1",
 			"test header value 2",

@@ -11,6 +11,10 @@ The Ammo Collector service is designed to capture and collect content from HTTP 
 - Once the task is completed (the content collection stop criteria are met), Ammo Collector gathers the collected requests and saves them to S3 as a zip archive.
 - In the background, periodic cleanup of old requests from the PostgreSQL database and S3 occurs.
 
+## Development status
+
+*Early beta. Not recommended for production use*
+
 ## Architecture Overview
 
 ![File Representation](doc/overview.svg)
