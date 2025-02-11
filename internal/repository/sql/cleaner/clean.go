@@ -11,13 +11,13 @@ import (
 )
 
 // Clean removes all collection data.
-func (s *Service) Clean(ctxMain context.Context, collectionIDs []entity.CollectionID) error {
+func (s *Service) CleanDatabase(ctxMain context.Context, collectionIDs []entity.CollectionID) error {
 	return s.txManager.Begin(ctxMain, func(ctx context.Context) error {
-		return s.cleanHelper(ctx, collectionIDs)
+		return s.cleanDatabaseHelper(ctx, collectionIDs)
 	})
 }
 
-func (s *Service) cleanHelper(ctx context.Context, collectionIDs []entity.CollectionID) error {
+func (s *Service) cleanDatabaseHelper(ctx context.Context, collectionIDs []entity.CollectionID) error {
 	// get not blocked collections
 	var notBlocked []entity.CollectionID
 	notBlockedSQL := pgh.Builder().Select("id").From("collections").

@@ -12,10 +12,16 @@ type ILocker interface {
 	TryLockFunc(ctx context.Context, key entity.LockKey, fn func(context.Context) error) (acquired bool, err error)
 }
 
-// ICleaner cleans up database.
-type ICleaner interface {
+// IDatabaseCleaner cleans up database.
+type IDatabaseCleaner interface {
 	// Clean cleans up database.
-	Clean(ctx context.Context, collectionIDs []entity.CollectionID) error
+	CleanDatabase(ctx context.Context, collectionIDs []entity.CollectionID) error
+}
+
+// IObjectStorageCleaner cleans up object storage.
+type IObjectStorageCleaner interface {
+	// Clean cleans up object storage.
+	CleanObjectStorage(ctx context.Context, resultIDs []entity.ResultID) error
 }
 
 // ICollectionReader is responsible for reading collection data.

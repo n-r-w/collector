@@ -12,6 +12,7 @@ import (
 	smithyendpoints "github.com/aws/smithy-go/endpoints"
 	"github.com/n-r-w/ammo-collector/internal/config"
 	"github.com/n-r-w/ammo-collector/internal/usecases/apiprocessor"
+	"github.com/n-r-w/ammo-collector/internal/usecases/cleaner"
 	"github.com/n-r-w/ammo-collector/internal/usecases/finalizer"
 	"github.com/n-r-w/bootstrap"
 )
@@ -23,9 +24,10 @@ type Service struct {
 }
 
 var (
-	_ bootstrap.IService         = (*Service)(nil)
-	_ finalizer.IResultChanSaver = (*Service)(nil)
-	_ apiprocessor.IResultGetter = (*Service)(nil)
+	_ bootstrap.IService            = (*Service)(nil)
+	_ finalizer.IResultChanSaver    = (*Service)(nil)
+	_ apiprocessor.IResultGetter    = (*Service)(nil)
+	_ cleaner.IObjectStorageCleaner = (*Service)(nil)
 )
 
 // minPartSize is the minimum allowed object size in bytes.

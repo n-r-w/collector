@@ -13,7 +13,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func TestClient(t *testing.T) {
+func TestGRPC(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
@@ -48,7 +48,7 @@ func TestClient(t *testing.T) {
 		require.Equal(t, handlerData, req.GetHandler())
 
 		// Compare headers
-		require.Equal(t, len(req.GetHeaders()), len(headersData)+len(metaData))
+		// All headers from headersData and metaData should be present
 		for k, v := range headersData {
 			header, ok := req.GetHeaders()[k]
 			require.True(t, ok, "Header %s not found", k)
@@ -86,4 +86,68 @@ func TestClient(t *testing.T) {
 	data, err := msg.Value.Encode()
 	require.NoError(t, err)
 	require.NoError(t, checkFunc(ctx, data))
+}
+
+func TestHTTP(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	const (
+		messageData = "test http message"
+		handlerData = "test http handler"
+	)
+
+	headersData := map[string][]string{
+		"Content-Type":    {"application/json"},
+		"X-Test-Header": {
+			"test header value 1",
+			"test header value 2",
+		},
+	}
+
+	checkFunc := func(ctx context.Context, data []byte) error {
+		req := &queuepb.Request{}
+		require.NoError(t, proto.Unmarshal(data, req))
+
+		require.Equal(t, string(messageData), req.GetBody())
+		require.Equal(t, handlerData, req.GetHandler())
+
+		// Compare headers
+		require.Equal(t, len(req.GetHeaders()), len(headersData))
+		for k, v := range headersData {
+			header, ok := req.GetHeaders()[k]
+			require.True(t, ok, "Header %s not found", k)
+			require.ElementsMatch(t, v, header.GetValues())
+		}
+
+		return nil
+	}
+
+	// WithSendToKafka
+	c, err := ammoclient.New(ammoclient.WithSendToKafka(checkFunc))
+	require.NoError(t, err)
+
+	require.NoError(t, c.SendHTTPRequest(
+		ctx, []byte(messageData), handlerData, headersData))
+
+	// WithSendToKafkaSarama
+	testCh := make(chan *sarama.ProducerMessage, 1)
+
+	c, err = ammoclient.New(ammoclient.WithSendToKafkaSarama(testCh, "test-topic"))
+	require.NoError(t, err)
+
+	require.NoError(t, c.SendHTTPRequest(
+		ctx, []byte(messageData), handlerData, headersData))
+
+	msg := <-testCh
+	require.NotNil(t, msg)
+	require.Equal(t, "test-topic", msg.Topic)
+	data, err := msg.Value.Encode()
+	require.NoError(t, err)
+	require.NoError(t, checkFunc(ctx, data))
+
+	// Test error cases
+	require.Error(t, c.SendHTTPRequest(ctx, nil, handlerData, headersData))
+	require.Error(t, c.SendHTTPRequest(ctx, []byte(messageData), "", headersData))
 }

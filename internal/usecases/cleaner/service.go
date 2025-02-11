@@ -13,20 +13,25 @@ import (
 
 // Service is responsible for cleaning up database.
 type Service struct {
-	cfg              *config.Config
-	executor         *executor.Service
-	collectionReader ICollectionReader
-	locker           ILocker
-	cleaner          ICleaner
+	cfg                  *config.Config
+	executor             *executor.Service
+	collectionReader     ICollectionReader
+	locker               ILocker
+	databaseCleaner      IDatabaseCleaner
+	objectStorageCleaner IObjectStorageCleaner
 }
 
 // New creates new cleanup service.
-func New(cfg *config.Config, locker ILocker, collectionReader ICollectionReader, cleaner ICleaner) (*Service, error) {
+func New(
+	cfg *config.Config, locker ILocker, collectionReader ICollectionReader,
+	databaseCleaner IDatabaseCleaner, objectStorageCleaner IObjectStorageCleaner,
+) (*Service, error) {
 	s := &Service{
-		cfg:              cfg,
-		locker:           locker,
-		collectionReader: collectionReader,
-		cleaner:          cleaner,
+		cfg:                  cfg,
+		locker:               locker,
+		collectionReader:     collectionReader,
+		databaseCleaner:      databaseCleaner,
+		objectStorageCleaner: objectStorageCleaner,
 	}
 
 	var err error

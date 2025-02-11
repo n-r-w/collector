@@ -98,16 +98,35 @@ func (c *Client) SendGRPCRequest(
 		return fmt.Errorf("failed to marshal request to JSON: %w", err)
 	}
 
+	return c.sendData(ctx, handler, headersTotal, jsonData)
+}
+
+// SendHTTPRequest sends a HTTP request to Kafka using the proper queue message format.
+// If headers is nil, it will attempt to extract headers from context using gRPC metadata.
+func (c *Client) SendHTTPRequest(
+	ctx context.Context, req []byte, handler string, headers map[string][]string,
+) error {
+	if len(req) == 0 {
+		return errors.New("ammoclient: request is empty")
+	}
+	if handler == "" {
+		return errors.New("ammoclient: handler is empty")
+	}
+
+	return c.sendData(ctx, handler, headers, req)
+}
+
+func (c *Client) sendData(ctx context.Context, handler string, headers map[string][]string, data []byte) error {
 	// Create queue message
 	queueMsg := &queuepb.Request{
 		Handler:   handler,
-		Body:      string(jsonData),
+		Body:      string(data),
 		Timestamp: timestamppb.New(time.Now()),
 	}
 
 	// Add headers
-	queueMsg.Headers = make(map[string]*queuepb.Header, len(headersTotal))
-	for k, v := range headersTotal {
+	queueMsg.Headers = make(map[string]*queuepb.Header, len(headers))
+	for k, v := range headers {
 		queueMsg.Headers[k] = &queuepb.Header{
 			Values: v,
 		}

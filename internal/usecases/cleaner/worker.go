@@ -33,13 +33,26 @@ func (s *Service) worker(ctx context.Context) error {
 	// try to get a lock
 	acquired, err := s.locker.TryLockFunc(ctx, entity.CleanUpLockKey,
 		func(ctxLock context.Context) error {
-			toCleanup := lo.Map(collections, func(c entity.Collection, index int) entity.CollectionID {
+			// cleanup database
+			toCleanupDB := lo.Map(collections, func(c entity.Collection, index int) entity.CollectionID {
 				return c.ID
 			})
-
-			// cleanup
-			if errCleanup := s.cleaner.Clean(ctxLock, toCleanup); errCleanup != nil {
+			if errCleanup := s.databaseCleaner.CleanDatabase(ctxLock, toCleanupDB); errCleanup != nil {
 				return fmt.Errorf("clean collections: %w", errCleanup)
+			}
+
+			// cleanup object storage
+			var toCleanupObjectStorage []entity.ResultID
+			for _, c := range collections {
+				if !c.ResultID.IsSome() {
+					continue
+				}
+				toCleanupObjectStorage = append(toCleanupObjectStorage, c.ResultID.Unwrap())
+			}
+
+			// cleanup object storage
+			if errCleanup := s.objectStorageCleaner.CleanObjectStorage(ctxLock, toCleanupObjectStorage); errCleanup != nil {
+				return fmt.Errorf("clean object storage: %w", errCleanup)
 			}
 
 			return nil

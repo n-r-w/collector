@@ -114,7 +114,7 @@ func TestClean(t *testing.T) {
 	require.Equal(t, 3, requestCount)
 
 	// Clean collections
-	err := s.Clean(ctx, []entity.CollectionID{collection1ID, collection2ID})
+	err := s.CleanDatabase(ctx, []entity.CollectionID{collection1ID, collection2ID})
 	require.NoError(t, err)
 
 	// Verify collections are deleted

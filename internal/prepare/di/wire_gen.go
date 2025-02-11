@@ -69,7 +69,7 @@ func InitializeContainer(ctx context.Context, cfg *config.Config, metrics teleme
 	}
 	apiprocessorService := apiprocessor.New(colmanagerService, colmanagerService, colmanagerService, s3Service, transactionManager)
 	service2 := reqprocessor2.New(reqprocessorService, cacheService)
-	cleanerService, err := cleaner2.New(cfg, lockerService, colmanagerService, service)
+	cleanerService, err := cleaner2.New(cfg, lockerService, colmanagerService, service, s3Service)
 	if err != nil {
 		return nil, err
 	}
@@ -124,13 +124,13 @@ type Container struct {
 }
 
 // sqlRepositorySet provides SQL repository and its interface bindings.
-var sqlRepositorySet = wire.NewSet(resgetter.New, wire.Bind(new(finalizer.IResultChanGetter), new(*resgetter.Service)), wire.Bind(new(finalizer.ICollectionResultUpdater), new(*resgetter.Service)), reqprocessor.New, wire.Bind(new(reqprocessor2.IRequestStorer), new(*reqprocessor.Service)), locker.New, wire.Bind(new(finalizer.ILocker), new(*locker.Service)), wire.Bind(new(cleaner2.ILocker), new(*locker.Service)), cleaner.New, wire.Bind(new(cleaner2.ICleaner), new(*cleaner.Service)), colmanager.New, wire.Bind(new(apiprocessor.ICollectionCreator), new(*colmanager.Service)), wire.Bind(new(finalizer.IStatusChanger), new(*colmanager.Service)), wire.Bind(new(apiprocessor.ICollectionReader), new(*colmanager.Service)), wire.Bind(new(apiprocessor.ICollectionUpdater), new(*colmanager.Service)), wire.Bind(new(finalizer.ICollectionReader), new(*colmanager.Service)), wire.Bind(new(cache.ICollectionReader), new(*colmanager.Service)), wire.Bind(new(cleaner2.ICollectionReader), new(*colmanager.Service)))
+var sqlRepositorySet = wire.NewSet(resgetter.New, wire.Bind(new(finalizer.IResultChanGetter), new(*resgetter.Service)), wire.Bind(new(finalizer.ICollectionResultUpdater), new(*resgetter.Service)), reqprocessor.New, wire.Bind(new(reqprocessor2.IRequestStorer), new(*reqprocessor.Service)), locker.New, wire.Bind(new(finalizer.ILocker), new(*locker.Service)), wire.Bind(new(cleaner2.ILocker), new(*locker.Service)), cleaner.New, wire.Bind(new(cleaner2.IDatabaseCleaner), new(*cleaner.Service)), colmanager.New, wire.Bind(new(apiprocessor.ICollectionCreator), new(*colmanager.Service)), wire.Bind(new(finalizer.IStatusChanger), new(*colmanager.Service)), wire.Bind(new(apiprocessor.ICollectionReader), new(*colmanager.Service)), wire.Bind(new(apiprocessor.ICollectionUpdater), new(*colmanager.Service)), wire.Bind(new(finalizer.ICollectionReader), new(*colmanager.Service)), wire.Bind(new(cache.ICollectionReader), new(*colmanager.Service)), wire.Bind(new(cleaner2.ICollectionReader), new(*colmanager.Service)))
 
 // DatabaseSet is a Wire provider set that includes all database dependencies.
 var databaseSet = wire.NewSet(db.New, wire.Bind(new(db.IConnectionGetter), new(*db.PxDB)), wire.Bind(new(txmgr.ITransactionBeginner), new(*db.PxDB)), wire.Bind(new(txmgr.ITransactionInformer), new(*db.PxDB)), txmgr.New, wire.Bind(new(txmgr.ITransactionManager), new(*txmgr.TransactionManager)))
 
 // s3Set provides S3 storage and its interface bindings.
-var s3Set = wire.NewSet(s3.New, wire.Bind(new(finalizer.IResultChanSaver), new(*s3.Service)), wire.Bind(new(apiprocessor.IResultGetter), new(*s3.Service)))
+var s3Set = wire.NewSet(s3.New, wire.Bind(new(finalizer.IResultChanSaver), new(*s3.Service)), wire.Bind(new(apiprocessor.IResultGetter), new(*s3.Service)), wire.Bind(new(cleaner2.IObjectStorageCleaner), new(*s3.Service)))
 
 // grpcServerSet is a Wire provider set that includes all grpc dependencies.
 var grpcServerSet = wire.NewSet(handlers.New, provideGRPCInitializers, grpcsrv.New)

@@ -17,7 +17,7 @@ type Service struct {
 	conn      func(ctx context.Context) conn.IConnection
 }
 
-var _ cleaner.ICleaner = (*Service)(nil)
+var _ cleaner.IDatabaseCleaner = (*Service)(nil)
 
 // New creates a new instance of Service.
 func New(

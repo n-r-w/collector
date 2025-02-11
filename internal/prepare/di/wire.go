@@ -81,7 +81,7 @@ var sqlRepositorySet = wire.NewSet(
 	wire.Bind(new(cleaner.ILocker), new(*lockerrepo.Service)),
 
 	cleanerrepo.New,
-	wire.Bind(new(cleaner.ICleaner), new(*cleanerrepo.Service)),
+	wire.Bind(new(cleaner.IDatabaseCleaner), new(*cleanerrepo.Service)),
 
 	colmanagerrepo.New,
 	wire.Bind(new(apiprocessor.ICollectionCreator), new(*colmanagerrepo.Service)),
@@ -109,6 +109,7 @@ var s3Set = wire.NewSet(
 	s3.New,
 	wire.Bind(new(finalizer.IResultChanSaver), new(*s3.Service)),
 	wire.Bind(new(apiprocessor.IResultGetter), new(*s3.Service)),
+	wire.Bind(new(cleaner.IObjectStorageCleaner), new(*s3.Service)),
 )
 
 // grpcServerSet is a Wire provider set that includes all grpc dependencies.

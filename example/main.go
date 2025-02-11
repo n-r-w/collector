@@ -1,4 +1,4 @@
-//nolint:govet //ok
+//nolint:govet,gosec,lostcancel //ok
 package main
 
 import (
