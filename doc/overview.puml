@@ -1,0 +1,92 @@
+@startuml "ammo-collector-layers-relations"
+
+!include <C4/C4_Component>
+
+title Ammo Collector Service Component Relations
+
+' Controller
+Boundary(controller_level, "Controller Layer\nExternal Event Processing\nRequest validation and routing only.") {
+    Component(grpc_handlers, "gRPC Handlers", "Handles gRPC requests")
+    Component(grpc_gateway, "gRPC Gateway", "Handles HTTP requests")
+    Rel_R(grpc_gateway, grpc_handlers, "forwards") 
+    Component(kafka_consumer, "Kafka Batch Consumer", "Handles Kafka messages")
+    
+    Component(i_use_case_handlers, "Handlers Interfaces", "Use cases handlers interfaces", $tags="interface")
+    Component(i_use_case_queue, "Queue Interfaces", "Use cases queue interfaces", $tags="interface") 
+    
+    ' Relationships - Controller Layer
+    Rel_D(grpc_handlers, i_use_case_handlers, "uses")
+    Rel_D(kafka_consumer, i_use_case_queue, "uses")
+}
+
+' Use cases
+Boundary(use_cases_level, "Use Cases Layer\nBusiness Logic Implementation") {
+    Component(api_processor, "API Processor", "API request processing")
+    Component(cache, "Cache", "Collection caching")
+    Component(cleaner, "Cleaner", "Database cleanup")
+    Component(finalizer, "Finalizer", "Collection finalization")
+    Component(req_processor, "Request Processor", "Request handling and storage")
+    
+    Component(i_repository_db, "SQL Repository Interfaces", "Database Repository interfaces", $tags="interface")    
+    Component(i_repository_object, "Object Storage Repository Interfaces", "Object Repository interfaces", $tags="interface")    
+
+    ' Relationships - Use Cases Layer
+    Rel_D(api_processor, i_repository_db, "uses")
+    Rel_D(api_processor, i_repository_object, "uses")
+    Rel_D(cache, i_repository_db, "uses")
+    Rel_D(cleaner, i_repository_db, "uses")
+    Rel_D(finalizer, i_repository_db, "uses")
+    Rel_D(finalizer, i_repository_object, "uses")
+    Rel_D(req_processor, i_repository_db, "uses")    
+    Rel_D(req_processor, cache, "uses via interface")
+}
+
+' Repository
+Boundary(repository_level, "Repository Layer\nExternal Systems Integration") {    
+    Component(cleaner_repo, "Cleaner", "Database cleanup")
+    Component(col_manager_repo, "Collection Manager", "Collection management")
+    Component(locker_repo, "Locker", "Distributed locking (PostgreSQL)")
+    Component(req_processor_repo, "Request Processor", "Request handling and storage")
+    Component(res_getter_repo, "Result Getter", "Reading completed results from database")
+    Component(s3_repo, "S3 Repository", "S3 operations")
+}
+
+' Use Cases Layer Implementations
+Rel_U(api_processor, i_use_case_handlers, "implements", $tags="interface")
+Rel_U(cleaner, i_use_case_handlers, "implements", $tags="interface")
+Rel_U(finalizer, i_use_case_handlers, "implements", $tags="interface")
+Rel_U(req_processor, i_use_case_queue, "implements", $tags="interface")
+
+' Repository Layer Implementations
+Rel_U(cleaner_repo, i_repository_db, "implements", $tags="interface")
+Rel_U(col_manager_repo, i_repository_db, "implements", $tags="interface")
+Rel_U(locker_repo, i_repository_db, "implements", $tags="interface")
+Rel_U(req_processor_repo, i_repository_db, "implements", $tags="interface")
+Rel_U(res_getter_repo, i_repository_db, "implements", $tags="interface")
+Rel_U(s3_repo, i_repository_object, "implements", $tags="interface")
+
+' External Systems
+ContainerDb_Ext(postgresql, "PostgreSQL", "Main data storage")
+Rel_D(cleaner_repo, postgresql, "")
+Rel_D(col_manager_repo, postgresql, "")
+Rel_D(locker_repo, postgresql, "")
+Rel_D(req_processor_repo, postgresql, "")
+Rel_D(res_getter_repo, postgresql, "")
+
+ComponentQueue_Ext(kafka, "Kafka")
+Rel_U(kafka_consumer, kafka,  "consumes")
+
+ContainerDb_Ext(s3, "S3", "Object storage")
+Rel_D(s3_repo, s3, "stores/read")
+
+' Microservices with ammoclient
+System_Ext(ammoclient_ms, "Microservices with ammo-client package")
+Rel_D(ammoclient_ms, kafka, "inbound requests")
+
+' Ammoc Ccollector Users
+System_Ext(ammo_collector_users, "Ammo Collector Users")
+Rel_D(ammo_collector_users, grpc_handlers, "")
+Rel_D(ammo_collector_users, grpc_gateway, "collection management")
+Rel_D(ammo_collector_users, s3_repo, "optional")
+
+@enduml

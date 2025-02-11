@@ -5,3 +5,4 @@ bin
 .cursorrules
 __debug_bin*
 .env
+doc/generate

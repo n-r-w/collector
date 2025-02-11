@@ -209,6 +209,9 @@ definitions:
         type: string
         format: uint64
         title: Number of requests collected
+      resultId:
+        type: string
+        title: Identifier for the result in S3 storage
       createdAt:
         type: string
         format: date-time

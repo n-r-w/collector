@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	s3_api "github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/n-r-w/ammo-collector/internal/entity"
+	"github.com/n-r-w/ctxlog"
 )
 
 // GetResult returns the result of a collection. Implements apiprocessor.IResultGetter.GetResult.
@@ -39,31 +40,58 @@ func (s *Service) GetResult(ctx context.Context, resultID entity.ResultID) (<-ch
 				end = *fileSize - 1
 			}
 
-			getResp, err := s.client.GetObject(ctx, &s3_api.GetObjectInput{
-				Bucket: aws.String(s.cfg.S3.Bucket),
-				Key:    aws.String(string(resultID)),
-				Range:  aws.String(fmt.Sprintf("bytes=%d-%d", offset, end)),
-			})
-			if err != nil {
-				chunksChan <- entity.RequestChunk{
-					Err: fmt.Errorf("failed to get object: %w", err),
-				}
+			if !s.processChunk(ctx, resultID, offset, end, chunksChan) {
 				return
-			}
-
-			data, err := io.ReadAll(getResp.Body)
-			if err != nil {
-				chunksChan <- entity.RequestChunk{
-					Err: fmt.Errorf("failed to read object: %w", err),
-				}
-				return
-			}
-
-			chunksChan <- entity.RequestChunk{
-				Data: data,
 			}
 		}
 	}()
 
 	return chunksChan, nil
+}
+
+func (s *Service) processChunk(
+	ctx context.Context,
+	resultID entity.ResultID,
+	offset, end int64,
+	chunksChan chan<- entity.RequestChunk,
+) bool {
+	getResp, err := s.client.GetObject(ctx, &s3_api.GetObjectInput{
+		Bucket: aws.String(s.cfg.S3.Bucket),
+		Key:    aws.String(string(resultID)),
+		Range:  aws.String(fmt.Sprintf("bytes=%d-%d", offset, end)),
+	})
+	if err != nil {
+		chunksChan <- entity.RequestChunk{
+			Err: fmt.Errorf("failed to get object: %w", err),
+		}
+		return false
+	}
+
+	// Create a buffer to read data in chunks
+	buffer := make([]byte, s.cfg.S3.ReadChunkSize)
+	reader := getResp.Body
+	defer ctxlog.CloseError(ctx, reader)
+
+	for {
+		n, err := reader.Read(buffer)
+		if n > 0 {
+			// Create a copy of the data to avoid buffer reuse issues
+			chunk := make([]byte, n)
+			copy(chunk, buffer[:n])
+			chunksChan <- entity.RequestChunk{
+				Data: chunk,
+			}
+		}
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			chunksChan <- entity.RequestChunk{
+				Err: fmt.Errorf("failed to read object: %w", err),
+			}
+			return false
+		}
+	}
+
+	return true
 }

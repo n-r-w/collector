@@ -94,7 +94,7 @@ type Config struct {
 	// S3 configuration.
 	S3 struct {
 		Endpoint     string `env:"S3_ENDPOINT,required"`
-		Region       string `env:"S3_REGION,required"`
+		Region       string `env:"S3_REGION" envDefault:"us-east-1"`
 		AccessKey    string `env:"S3_ACCESS_KEY,required"`
 		SecretKey    string `env:"S3_SECRET_KEY,required"`
 		Bucket       string `env:"S3_BUCKET,required"`

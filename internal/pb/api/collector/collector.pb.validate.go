@@ -1482,6 +1482,8 @@ func (m *Collection) validate(all bool) error {
 
 	// no validation rules for RequestCount
 
+	// no validation rules for ResultId
+
 	if all {
 		switch v := interface{}(m.GetCreatedAt()).(type) {
 		case interface{ ValidateAll() error }:

@@ -28,10 +28,11 @@ var (
 	_ apiprocessor.IResultGetter = (*Service)(nil)
 )
 
+// minPartSize is the minimum allowed object size in bytes.
+const minPartSize = 5 << 20 // 5MB
+
 // New creates a new instance of the S3 service.
 func New(cfg *config.Config) (*Service, error) {
-	const minPartSize = 5 << 20 // 5MB
-
 	if cfg.S3.WriteChunkSize < minPartSize {
 		return nil, fmt.Errorf("write chunk size is too small: %d, min part size: %d", cfg.S3.WriteChunkSize, minPartSize)
 	}

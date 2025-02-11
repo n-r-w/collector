@@ -76,6 +76,7 @@ func convertCollectionFromEntity(collection entity.Collection) *collector.Collec
 		ErrorMessage: collection.ErrorMessage.Unwrap(),
 		RequestCount: uint64(collection.RequestCount), //nolint:gosec // ok
 		Task:         convertTaskFromEntity(collection.Task),
+		ResultId:     string(collection.ResultID.Unwrap()),
 	}
 
 	return protoStatus

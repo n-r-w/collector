@@ -188,16 +188,17 @@ message Collection {
     Status status        = 2;  // Status of the collection
     Task   task          = 3;  // Collection creation parameters
     uint64 request_count = 4;  // Number of requests collected
+    string result_id     = 5;  // Identifier for the result in S3 storage
 
     // Timestamps
-    google.protobuf.Timestamp created_at   = 5;  // When collection was created
-    google.protobuf.Timestamp started_at   = 6;  // When collection was started
-    google.protobuf.Timestamp updated_at   = 7;  // Last update timestamp
-    google.protobuf.Timestamp completed_at = 8;  // When collection reached terminal state
+    google.protobuf.Timestamp created_at   = 6;  // When collection was created
+    google.protobuf.Timestamp started_at   = 7;  // When collection was started
+    google.protobuf.Timestamp updated_at   = 8;  // Last update timestamp
+    google.protobuf.Timestamp completed_at = 9;  // When collection reached terminal state
 
     // Error details
-    string error_message = 9;   // Error message if collection failed
-    uint32 error_code    = 10;  // Error code if collection failed
+    string error_message = 10;  // Error message if collection failed
+    uint32 error_code    = 11;  // Error code if collection failed
 }
 
 // CancelCollectionRequest specifies which collection to stop
