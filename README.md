@@ -6,10 +6,13 @@ The Ammo Collector service is designed to capture and collect content from HTTP 
 
 - Clients embed the [ammoclient](pkg/ammoclient) package into their microservices and for all requests that need to be collected, they call the `SendGRPCRequest` or `SendHTTPRequest` functions.
 - Ammoclient sends the requests to Kafka.
+- A user sets a task to collect content via REST or gRPC.
 - Ammo Collector processes the requests and checks them against the criteria based on the content collection tasks.
 - If the request matches the criteria, it is saved in the PostgreSQL database and linked to the content collection task.
 - Once the task is completed (the content collection stop criteria are met), Ammo Collector gathers the collected requests and saves them to S3 as a zip archive.
 - In the background, periodic cleanup of old requests from the PostgreSQL database and S3 occurs.
+- User checks the state of collections through REST or gRPC.
+- User gets a zip archive with collection requests through the API or directly from S3.
 
 ## Development status
 
@@ -17,7 +20,7 @@ The Ammo Collector service is designed to capture and collect content from HTTP 
 
 ## Architecture Overview
 
-![File Representation](doc/overview.svg)
+![File Representation](docs/overview.svg)
 
 ## Usage Requirements
 

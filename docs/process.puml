@@ -1,0 +1,58 @@
+@startuml
+!theme plain
+skinparam backgroundColor white
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+
+actor "User" as user
+participant "Client Service\n(with ammoclient)" as client
+queue "Kafka" as kafka
+box "Ammo Collector" #LightBlue
+    participant "API\n(REST/gRPC)" as api
+    participant "Collector Service" as collector
+end box
+database "PostgreSQL" as postgres
+database "S3" as s3
+
+== Setup Collection Task ==
+user -> api: Create collection task\n(REST/gRPC)
+api -> collector: Forward task
+collector -> postgres: Save task
+
+== Request Collection ==
+client -> kafka: SendGRPCRequest/\nSendHTTPRequest
+collector -> kafka: Consume requests
+activate collector
+collector -> collector: Check request against\ncollection criteria
+collector -> postgres: Save matching requests\nlinked to task
+deactivate collector
+
+== Task Completion ==
+collector -> collector: Check task completion\ncriteria
+activate collector
+collector -> postgres: Fetch collected requests
+collector -> s3: Save as zip archive
+collector -> postgres: Update task status
+deactivate collector
+
+== Background Operations ==
+collector -> postgres: Periodic cleanup of old requests
+collector -> s3: Periodic cleanup of old archives
+
+== Task Status & Results ==
+user -> api: Check collection status
+api -> postgres: Query task status
+postgres --> api: Return status
+api --> user: Return status
+
+user -> api: Request collection archive
+alt Direct S3 Access
+    api --> user: Return S3 URL
+    user -> s3: Download archive
+else Via API
+    api -> s3: Fetch archive
+    s3 --> api: Return archive
+    api --> user: Return archive
+end
+
+@enduml
