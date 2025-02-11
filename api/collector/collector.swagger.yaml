@@ -135,35 +135,6 @@ paths:
           format: int64
       tags:
         - collections
-  /v1/collections/{collectionId}/result:
-    get:
-      summary: Get collection results
-      description: Streams the collected data as chunks of a zip archive
-      operationId: CollectionService_GetResult
-      responses:
-        "200":
-          description: A successful response.(streaming responses)
-          schema:
-            type: object
-            properties:
-              result:
-                $ref: '#/definitions/collectorGetResultResponse'
-              error:
-                $ref: '#/definitions/googlerpcStatus'
-            title: Stream result of collectorGetResultResponse
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/googlerpcStatus'
-      parameters:
-        - name: collectionId
-          description: Unique identifier for the collection
-          in: path
-          required: true
-          type: string
-          format: int64
-      tags:
-        - collections
 definitions:
   ammocollectorHeader:
     type: object

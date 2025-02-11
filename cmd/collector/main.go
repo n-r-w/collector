@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/n-r-w/ammo-collector/internal/config"
+	"github.com/n-r-w/ammo-collector/internal/controller/handlers"
 	"github.com/n-r-w/ammo-collector/internal/prepare"
 	"github.com/n-r-w/ammo-collector/internal/prepare/di"
 	"github.com/n-r-w/bootstrap"
@@ -73,6 +74,9 @@ func getBootOptions(ctx context.Context, cfg *config.Config) ([]bootstrap.Option
 		cleanUp = append(cleanUp, cleanupMetrics)
 	}
 
+	// HTTP httpHandlers
+	httpHandlers := handlers.NewHTTPHandlers()
+
 	// Prepare GRPC server options
 	grpcsrvOpts, err := grpcsrv.GetCtxLogOptions(ctx)
 	if err != nil {
@@ -85,6 +89,7 @@ func getBootOptions(ctx context.Context, cfg *config.Config) ([]bootstrap.Option
 			HTTP: fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.HTTP.Port),
 		}),
 		grpcsrv.WithHTTPReadHeaderTimeout(cfg.HTTP.ReadHeaderTimeout),
+		grpcsrv.WithRegisterHTTPEndpoints(httpHandlers.GetHTTPEndpoints),
 	)
 	if cfg.Server.RecoverPanics {
 		grpcsrvOpts = append(grpcsrvOpts, grpcsrv.WithRecover())
@@ -108,6 +113,9 @@ func getBootOptions(ctx context.Context, cfg *config.Config) ([]bootstrap.Option
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize container: %w", err)
 	}
+
+	// Some manual injection of dependencies
+	httpHandlers.SetResultGetter(container.APIProcessorService)
 
 	// define boot order
 	bootOpts := []bootstrap.Option{

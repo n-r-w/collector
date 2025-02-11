@@ -53,8 +53,6 @@ github.com/aws/smithy-go v1.22.2/go.mod h1:irrKGvNn1InZwb2d7fkIRNucdfwR8R+Ts3wxY
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/black-06/grpc-gateway-file v0.1.2 h1:FXX1NQdlqlpqIgXw2ZoSRvLrE0UllN5mc2zS26kcOZs=
-github.com/black-06/grpc-gateway-file v0.1.2/go.mod h1:6frmS4MVmaTL+g5XCF2n3ltgGbMKzUj8L+f8btLAswU=
 github.com/caarlos0/env/v11 v11.3.1 h1:cArPWC15hWmEt+gWk7YBi7lEXTXCvpaSdCiZE2X5mCA=
 github.com/caarlos0/env/v11 v11.3.1/go.mod h1:qupehSf/Y0TUTsxKywqRt/vJjN5nz6vauiYEUUr8P4U=
 github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
@@ -272,8 +270,8 @@ github.com/n-r-w/bootstrap v1.0.6 h1:HeH2OqO7L8xpNdC8QvOC5060g6rtKtlzOpwusGUbRpE
 github.com/n-r-w/bootstrap v1.0.6/go.mod h1:nRyxPLGlb4wuQ4t0dWE514LYW/5URTtKqqOUOOzdcGU=
 github.com/n-r-w/ctxlog v1.0.3 h1:ZL+3CIhiSFIjT6HHu3bwLgsl9zPWJsdcdDJLtBZNqRY=
 github.com/n-r-w/ctxlog v1.0.3/go.mod h1:MZ7sxKTgLXL1pFrPjScPEXhqL1bv/qhqHhpjM1MVdgw=
-github.com/n-r-w/grpcsrv v1.0.4 h1:KJSkmgeC3DpJIJCyhr3xaxfutEv1b+FSF57y+cBx++w=
-github.com/n-r-w/grpcsrv v1.0.4/go.mod h1:TwwJtdP+Tt/cpgu9RnM43QVGdO+RIU+MHnZArpvhqvo=
+github.com/n-r-w/grpcsrv v1.0.6 h1:K+J5yBLsjqN2o4zKH3ATlK0A4Im/O+vR/jSt8Z7S1Wg=
+github.com/n-r-w/grpcsrv v1.0.6/go.mod h1:ExBUJLmwsEX5vSUKpPvp13WHaSmPgJheuaSWI5Djblk=
 github.com/n-r-w/kafkaclient v1.0.4 h1:WbHFJq8JB1GQ5NN/PkQTkT4ngNdTlZ+q+7MKPDSsZqE=
 github.com/n-r-w/kafkaclient v1.0.4/go.mod h1:Dte0FsTEyHjujdhTE2UGMdlN2G5thBKFuFDtjkZmJlg=
 github.com/n-r-w/pgh/v2 v2.1.2 h1:BetSlCVmuTQgj2Q/POM2KyJXWDuMfS7LCmZo7DuBlhM=
