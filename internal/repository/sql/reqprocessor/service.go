@@ -13,6 +13,7 @@ import (
 
 // Service implements sql repository.
 type Service struct {
+	cfg       *config.Config
 	txManager txmgr.ITransactionManager
 	conn      func(ctx context.Context) conn.IConnection
 }
@@ -25,6 +26,7 @@ func New(
 	txManager txmgr.ITransactionManager,
 ) (*Service, error) {
 	return &Service{
+		cfg:       cfg,
 		txManager: txManager,
 		conn:      sql.GetConn(cfg, connectionGetter),
 	}, nil

@@ -55,21 +55,6 @@ func (c *Collection) IsOutOfRequestLimit() bool {
 	return c.RequestCount >= c.Task.Completion.RequestCountLimit
 }
 
-// IsTerminal returns true if collection is in terminal state.
-func (c *Collection) IsTerminal() bool {
-	return c.Status.IsTerminal()
-}
-
-// CanStart returns true if collection can be started.
-func (c *Collection) CanStart() bool {
-	return c.Status == StatusPending
-}
-
-// CanStop returns true if collection can be stopped.
-func (c *Collection) CanStop() bool {
-	return c.Status == StatusInProgress
-}
-
 // SetStatus updates collection status and related timestamps.
 func (c *Collection) SetStatus(status CollectionStatus) error {
 	if !status.IsValid() {

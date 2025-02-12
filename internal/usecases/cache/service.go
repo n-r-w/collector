@@ -107,7 +107,7 @@ func (s *Service) update(collections []entity.Collection) {
 // worker retrieves a list of active collections and updates the cache.
 func (s *Service) worker(ctx context.Context) error {
 	collections, err := s.collectionReader.GetCollections(ctx, entity.CollectionFilter{
-		Statuses: entity.ActiveCollectionStatuses(),
+		Statuses: entity.CollectingCollectionStatuses(),
 	})
 	if err != nil {
 		if errors.Is(err, context.Canceled) {

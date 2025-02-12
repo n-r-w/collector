@@ -20,7 +20,7 @@ require (
 	github.com/n-r-w/ctxlog v1.0.3
 	github.com/n-r-w/grpcsrv v1.0.6
 	github.com/n-r-w/kafkaclient v1.0.4
-	github.com/n-r-w/pgh/v2 v2.1.2
+	github.com/n-r-w/pgh/v2 v2.1.3
 	github.com/n-r-w/squirrel v1.4.2
 	github.com/n-r-w/testdock/v2 v2.2.0
 	github.com/samber/lo v1.49.1
@@ -81,7 +81,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.29.6
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
-	github.com/cenkalti/backoff/v5 v5.0.1 // indirect
+	github.com/cenkalti/backoff/v5 v5.0.2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/containerd/continuity v0.4.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

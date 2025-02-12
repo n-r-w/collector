@@ -30,40 +30,38 @@ func (s *Service) finalizeCollections(ctxMain context.Context, collections []ent
 		}
 
 		errGroup.Go(func() error {
-			return s.txManager.Begin(ctxMain, func(ctx context.Context) error {
-				// try to get a lock by collection ID
-				acquired, err := s.locker.TryLockFunc(ctx, entity.LockKey(collection.ID),
-					func(ctxLock context.Context) error {
-						ctxlog.Debug(ctxLock, "finalizer lock acquired",
-							slog.String("collection_id", collection.ID.String()))
-
-						if err := s.finalizeCollectionHelper(ctxLock, collection); err != nil {
-							muErrTotal.Lock()
-							errTotal = errors.Join(errTotal, err)
-							muErrTotal.Unlock()
-							return err // return error to rollback transaction
-						} else {
-							muErrTotal.Lock()
-							successCount++
-							muErrTotal.Unlock()
-						}
-						return nil
-					})
-				if err != nil {
-					return fmt.Errorf("failed to get lock: %w", err)
-				}
-
-				if acquired {
-					ctxlog.Debug(ctxMain, "finalizer lock released",
+			// try to get a lock by collection ID. This also opens the transaction.
+			acquired, err := s.locker.TryLockFunc(ctxMain, entity.LockKey(collection.ID),
+				func(ctxLock context.Context) error {
+					ctxlog.Debug(ctxLock, "finalizer lock acquired",
 						slog.String("collection_id", collection.ID.String()))
-				} else {
-					// lock is already acquired
-					ctxlog.Debug(ctxMain, "finalizer lock is already acquired, skipping",
-						slog.String("collection_id", collection.ID.String()))
-				}
 
-				return nil
-			})
+					if err := s.finalizeCollectionHelper(ctxLock, collection); err != nil {
+						muErrTotal.Lock()
+						errTotal = errors.Join(errTotal, err)
+						muErrTotal.Unlock()
+						return err // return error to rollback transaction
+					} else {
+						muErrTotal.Lock()
+						successCount++
+						muErrTotal.Unlock()
+					}
+					return nil
+				})
+			if err != nil {
+				return fmt.Errorf("failed to get lock: %w", err)
+			}
+
+			if acquired {
+				ctxlog.Debug(ctxMain, "finalizer lock released",
+					slog.String("collection_id", collection.ID.String()))
+			} else {
+				// lock is already acquired
+				ctxlog.Debug(ctxMain, "finalizer lock is already acquired, skipping",
+					slog.String("collection_id", collection.ID.String()))
+			}
+
+			return nil
 		})
 	}
 
@@ -102,6 +100,12 @@ func (s *Service) finalizeCollectionHelper(ctx context.Context, collection entit
 		}
 
 		// save results
+		// We are actually saving results in S3 inside a PostgreSQL transaction. This is bad.
+		// But in this case, a long transaction is allowed, because:
+		// 1) Only one finalizer can be running at the same time for one collection.
+		// 2) Writing changes are possible only for incoming requests from Kafka.
+		// 3) But they only add new records, not change existing ones.
+
 		resultID, err := s.resultSaver.SaveResultChan(ctx, collection.ID, requestsCh)
 		if err != nil {
 			return fmt.Errorf("failed to save result for collection %d: %w", collection.ID, err)

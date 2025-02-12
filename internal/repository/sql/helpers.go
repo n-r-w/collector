@@ -43,7 +43,7 @@ func SetupTest[T any](
 	// logger
 	logger := ctxlog.Must(
 		ctxlog.WithTesting(t),
-		ctxlog.WithLevel(slog.LevelError),
+		ctxlog.WithLevel(slog.LevelDebug),
 		ctxlog.WithEnvType(ctxlog.EnvDevelopment),
 	)
 	// put logger into context
@@ -58,7 +58,7 @@ func SetupTest[T any](
 	)
 
 	// test database implementation
-	dbImpl := db.New(db.WithPool(pool))
+	dbImpl := db.New(db.WithPool(pool), db.WithLogQueries(), db.WithLogger(logger))
 	// test transaction manager implementation
 	txmgrImpl := txmgr.New(dbImpl, dbImpl)
 

@@ -20,6 +20,7 @@ type Service struct {
 var (
 	_ cache.ICollectionReader         = (*Service)(nil)
 	_ finalizer.IStatusChanger        = (*Service)(nil)
+	_ finalizer.ICollectionReader     = (*Service)(nil)
 	_ apiprocessor.ICollectionCreator = (*Service)(nil)
 	_ apiprocessor.ICollectionReader  = (*Service)(nil)
 	_ apiprocessor.ICollectionUpdater = (*Service)(nil)

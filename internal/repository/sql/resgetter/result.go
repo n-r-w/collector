@@ -57,7 +57,7 @@ func (s *Service) processBatch( //nolint:gocritic // named return values not con
 		FROM request_collections rc 
 		JOIN requests r ON rc.request_id = r.id 
 		WHERE rc.collection_id = $1 AND r.id > $2
-		ORDER BY r.id
+		ORDER BY r.id 
 		LIMIT $3`,
 		collectionID, lastID, s.cfg.Collection.FinalizerResultBatchSize)
 	if err != nil {

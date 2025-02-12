@@ -23,7 +23,7 @@ const (
 var statusNames = [...]string{ //nolint:gochecknoglobals // ok
 	"unknown",
 	"pending",
-	"in progress",
+	"progress",
 	"finalizing",
 	"completed",
 	"failed",
@@ -53,12 +53,7 @@ func (s CollectionStatus) IsTerminal() bool {
 	}
 }
 
-// IsActive returns true if the status is in active state.
-func (s CollectionStatus) IsActive() bool {
-	return s == StatusInProgress || s == StatusPending || s == StatusFinalizing
-}
-
-// IsCollecting returns true if the status is in collecting state.
+// IsCollecting returns true if the status is in collecting states.
 func (s CollectionStatus) IsCollecting() bool {
 	return s == StatusInProgress || s == StatusPending
 }
@@ -68,9 +63,19 @@ func (s CollectionStatus) IsFinalizing() bool {
 	return s == StatusFinalizing
 }
 
-// ActiveCollectionStatuses returns a slice of active CollectionStatuses.
+// CollectingCollectionStatuses returns a slice of collections in collecting states.
+func CollectingCollectionStatuses() []CollectionStatus {
+	return []CollectionStatus{StatusInProgress, StatusPending}
+}
+
+// ActiveCollectionStatuses returns a slice of collections in active states.
 func ActiveCollectionStatuses() []CollectionStatus {
-	return []CollectionStatus{StatusInProgress, StatusPending, StatusFinalizing}
+	return []CollectionStatus{StatusPending, StatusInProgress, StatusFinalizing}
+}
+
+// TerminalCollectionStatuses returns a slice of collections in terminal states.
+func TerminalCollectionStatuses() []CollectionStatus {
+	return []CollectionStatus{StatusCompleted, StatusFailed, StatusCancelled}
 }
 
 // CollectionStatusFromInt returns the CollectionStatus corresponding to the provided integer value.

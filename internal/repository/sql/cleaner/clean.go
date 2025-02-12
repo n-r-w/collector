@@ -21,7 +21,9 @@ func (s *Service) cleanDatabaseHelper(ctx context.Context, collectionIDs []entit
 	// get not blocked collections
 	var notBlocked []entity.CollectionID
 	notBlockedSQL := pgh.Builder().Select("id").From("collections").
-		Where(sq.Eq{"id": collectionIDs}).Suffix("FOR UPDATE SKIP LOCKED")
+		Where(sq.Eq{"id": collectionIDs}).
+		Suffix("FOR UPDATE SKIP LOCKED").
+		OrderBy("id") // important for avoid deadlocks
 	if err := px.Select(ctx, s.conn(ctx), notBlockedSQL, &notBlocked); err != nil {
 		return fmt.Errorf("failed to get not blocked collections: %w", err)
 	}
