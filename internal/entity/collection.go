@@ -45,6 +45,16 @@ type Collection struct {
 	ErrorCode optional.Option[int]
 }
 
+// IsOutOfTimeLimit returns true if collection is out of time limit.
+func (c *Collection) IsOutOfTimeLimit() bool {
+	return time.Since(c.CreatedAt) >= c.Task.Completion.TimeLimit
+}
+
+// IsOutOfRequestLimit returns true if collection is out of request limit.
+func (c *Collection) IsOutOfRequestLimit() bool {
+	return c.RequestCount >= c.Task.Completion.RequestCountLimit
+}
+
 // IsTerminal returns true if collection is in terminal state.
 func (c *Collection) IsTerminal() bool {
 	return c.Status.IsTerminal()

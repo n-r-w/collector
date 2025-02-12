@@ -15,7 +15,13 @@ func (s *Service) GetResult(ctx context.Context, collectionID entity.CollectionI
 	}
 
 	if collection.Status != entity.StatusCompleted {
-		return nil, fmt.Errorf("collection %d is not completed", collectionID)
+		return nil, fmt.Errorf("collection %d is not completed: %w", collectionID, entity.ErrInvalidStatus)
+	}
+
+	if collection.ResultID.IsNone() {
+		resultChan := make(chan entity.RequestChunk)
+		close(resultChan)
+		return resultChan, nil
 	}
 
 	resultChan, err := s.resultGetter.GetResult(ctx, collection.ResultID.Unwrap())

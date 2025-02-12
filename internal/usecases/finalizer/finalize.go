@@ -93,23 +93,28 @@ func (s *Service) finalizeCollections(ctxMain context.Context, collections []ent
 func (s *Service) finalizeCollectionHelper(ctx context.Context, collection entity.Collection) error {
 	ctxlog.Debug(ctx, "finalizing collection", slog.String("collection_id", collection.ID.String()))
 
-	// Fetch requests for this collection
-	requests, err := s.resultGetter.GetResultChan(ctx, collection.ID, collection.Task.Completion.RequestCountLimit)
-	if err != nil {
-		return fmt.Errorf("failed to fetch collection requests for collection %d: %w", collection.ID, err)
-	}
+	// if collection has no requests, skip result saving
+	if collection.Task.Completion.RequestCountLimit > 0 {
+		// Fetch requestsCh for this collection
+		requestsCh, err := s.resultGetter.GetResultChan(ctx, collection.ID, collection.Task.Completion.RequestCountLimit)
+		if err != nil {
+			return fmt.Errorf("failed to fetch collection requests for collection %d: %w", collection.ID, err)
+		}
 
-	// save results
-	resultID, err := s.resultSaver.SaveResultChan(ctx, collection.ID, requests)
-	if err != nil {
-		return fmt.Errorf("failed to save result for collection %d: %w", collection.ID, err)
+		// save results
+		resultID, err := s.resultSaver.SaveResultChan(ctx, collection.ID, requestsCh)
+		if err != nil {
+			return fmt.Errorf("failed to save result for collection %d: %w", collection.ID, err)
+		}
+
+		// update collection result_id
+		if err := s.resultUpdater.UpdateResultID(ctx, collection.ID, resultID); err != nil {
+			return fmt.Errorf("failed to update collection result_id: %w", err)
+		}
 	}
 
 	// In case of errors below, we will leave an "orphaned" archive of results in S3, but this
 	// is not critical.
-	// We cannot move the update above the write to S3 (SaveResultChan), because it may be long and
-	// the write of data from the Kafka topic is blocked.
-
 	if err := s.statusChanger.UpdateStatus(ctx, collection.ID, entity.StatusCompleted); err != nil {
 		if errors.Is(err, entity.ErrCollectionNotFound) {
 			// it's ok if someone else already finalized collection
@@ -117,11 +122,6 @@ func (s *Service) finalizeCollectionHelper(ctx context.Context, collection entit
 		}
 
 		return fmt.Errorf("failed to update collections status: %w", err)
-	}
-
-	// update collection result_id
-	if err := s.resultUpdater.UpdateResultID(ctx, collection.ID, resultID); err != nil {
-		return fmt.Errorf("failed to update collection result_id: %w", err)
 	}
 
 	ctxlog.Debug(ctx, "collection finalized", slog.String("collection_id", collection.ID.String()))

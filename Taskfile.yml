@@ -9,7 +9,7 @@ tasks:
   run:
     desc: "Run collector"
     cmds:
-      - go run ./cmd/collector  
+      - go run ./cmd/collector
 
   build-example:
     desc: "Build example"
@@ -30,16 +30,6 @@ tasks:
     desc: Run linter
     cmds:
       - golangci-lint run
-
-  clean:
-    desc: Clean build directory
-    cmds:
-      - rm -rf {{.BUILD_DIR}}
-
-  run:
-    desc: Run the application
-    cmds:
-      - go run {{.MAIN_PATH}}
 
   protodep:
     desc: Import protobuf dependencies

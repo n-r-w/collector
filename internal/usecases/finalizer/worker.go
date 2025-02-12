@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"time"
 
 	"github.com/n-r-w/ammo-collector/internal/entity"
 	"github.com/n-r-w/bootstrap/executor"
@@ -15,7 +14,7 @@ import (
 // worker retrieves a list of active collections and checks if they need finalization.
 func (s *Service) worker(ctx context.Context) error {
 	collections, err := s.collectionReader.GetCollections(ctx, entity.CollectionFilter{
-		Statuses: []entity.CollectionStatus{entity.StatusFinalizing},
+		Statuses: entity.ActiveCollectionStatuses(),
 	})
 	if err != nil {
 		return fmt.Errorf("get collections: %w", err)
@@ -27,7 +26,7 @@ func (s *Service) worker(ctx context.Context) error {
 
 	var toFinalize []entity.Collection
 	for _, collection := range collections {
-		if s.finalizationNeeded(collection) {
+		if collection.IsOutOfTimeLimit() || collection.IsOutOfRequestLimit() {
 			toFinalize = append(toFinalize, collection)
 		}
 	}
@@ -43,19 +42,6 @@ func (s *Service) worker(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-func (s *Service) finalizationNeeded(collection entity.Collection) bool {
-	if collection.RequestCount >= collection.Task.Completion.RequestCountLimit {
-		return true
-	}
-
-	if collection.StartedAt.IsSome() &&
-		time.Since(collection.StartedAt.Unwrap()) >= collection.Task.Completion.TimeLimit {
-		return true
-	}
-
-	return false
 }
 
 // worker is an implementation of executor.IExecutor.

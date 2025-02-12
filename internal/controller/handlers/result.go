@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/n-r-w/ammo-collector/internal/entity"
@@ -23,6 +24,12 @@ func (s *Service) GetResult(
 	// Get the result chunks channel from the result getter
 	resultChan, err := s.resultGetter.GetResult(ctx, entity.CollectionID(req.GetCollectionId()))
 	if err != nil {
+		if errors.Is(err, entity.ErrCollectionNotFound) {
+			return grpc_status.Error(codes.NotFound, err.Error())
+		} else if errors.Is(err, entity.ErrInvalidStatus) {
+			return grpc_status.Error(codes.FailedPrecondition, err.Error())
+		}
+
 		return grpc_status.Error(codes.Internal, fmt.Sprintf("failed to get result: %v", err))
 	}
 

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -60,7 +61,13 @@ func (h *HTTPHandlers) getResultHTTP(
 	// Get the result chunks channel from the result getter
 	resultChan, err := h.resultGetter.GetResult(ctx, collectionID)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("failed to get result: %v", err), http.StatusNotFound)
+		if errors.Is(err, entity.ErrCollectionNotFound) {
+			http.Error(w, err.Error(), http.StatusNotFound)
+		} else if errors.Is(err, entity.ErrInvalidStatus) {
+			http.Error(w, err.Error(), http.StatusProcessing)
+		} else {
+			http.Error(w, fmt.Sprintf("failed to get result: %v", err), http.StatusInternalServerError)
+		}
 		return
 	}
 
