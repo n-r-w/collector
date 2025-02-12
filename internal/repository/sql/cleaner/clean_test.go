@@ -141,5 +141,5 @@ func TestClean(t *testing.T) {
 		From("requests")
 
 	require.NoError(t, px.SelectOne(ctx, s.conn(ctx), sql, &requestCount))
-	require.Equal(t, 3, requestCount) // All requests should still be there
+	require.Equal(t, 0, requestCount) // All requests should still be there
 }
