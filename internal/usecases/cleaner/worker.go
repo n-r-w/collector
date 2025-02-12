@@ -7,10 +7,10 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/moznion/go-optional"
 	"github.com/n-r-w/ammo-collector/internal/entity"
 	"github.com/n-r-w/ctxlog"
 	"github.com/samber/lo"
+	"github.com/samber/mo"
 )
 
 // worker cleans up database.
@@ -19,7 +19,7 @@ func (s *Service) worker(ctx context.Context) error {
 
 	// get all collections
 	collections, err := s.collectionReader.GetCollections(ctx, entity.CollectionFilter{
-		ToTime: optional.Some(time.Now().Add(-s.cfg.Collection.RetentionPeriod)),
+		ToTime: mo.Some(time.Now().Add(-s.cfg.Collection.RetentionPeriod)),
 	})
 	if err != nil {
 		return fmt.Errorf("get collections: %w", err)
@@ -44,10 +44,10 @@ func (s *Service) worker(ctx context.Context) error {
 			// cleanup object storage
 			var toCleanupObjectStorage []entity.ResultID
 			for _, c := range collections {
-				if !c.ResultID.IsSome() {
+				if c.ResultID.IsAbsent() {
 					continue
 				}
-				toCleanupObjectStorage = append(toCleanupObjectStorage, c.ResultID.Unwrap())
+				toCleanupObjectStorage = append(toCleanupObjectStorage, c.ResultID.OrEmpty())
 			}
 
 			// cleanup object storage
@@ -66,10 +66,10 @@ func (s *Service) worker(ctx context.Context) error {
 		return err
 	}
 
-	if !acquired {
-		ctxlog.Debug(ctx, "cleanup lock is already acquired, skipping")
-	} else {
+	if acquired {
 		ctxlog.Debug(ctx, "finished cleaning up collections", slog.Int("count", len(collections)))
+	} else {
+		ctxlog.Debug(ctx, "cleanup lock is already acquired, skipping")
 	}
 
 	return nil

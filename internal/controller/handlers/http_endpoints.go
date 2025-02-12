@@ -78,6 +78,7 @@ func (h *HTTPHandlers) getResultHTTP(
 	}
 	defer func() { _ = os.Remove(tmpFile.Name()) }()
 
+	noData := true
 	for chunk := range resultChan {
 		if chunk.Err != nil {
 			http.Error(w, fmt.Sprintf("failed to get result chunk: %v", chunk.Err), http.StatusInternalServerError)
@@ -89,6 +90,14 @@ func (h *HTTPHandlers) getResultHTTP(
 			http.Error(w, fmt.Sprintf("failed to write chunk to temp file: %v", err), http.StatusInternalServerError)
 			return
 		}
+
+		noData = false
+	}
+
+	if noData {
+		_ = tmpFile.Close()
+		http.Error(w, "no requests in collection", http.StatusNoContent)
+		return
 	}
 
 	if err = tmpFile.Close(); err != nil {

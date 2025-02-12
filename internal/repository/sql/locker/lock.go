@@ -25,7 +25,7 @@ func (s *Service) TryLockFunc(
 	}
 
 	if unlocker == nil {
-		return true, nil
+		return false, nil
 	}
 
 	defer func() {
@@ -35,7 +35,7 @@ func (s *Service) TryLockFunc(
 		}
 	}()
 
-	return false, fn(ctxLock)
+	return true, fn(ctxLock)
 }
 
 // TryLock tries to get a lock using pg_try_advisory_lock.

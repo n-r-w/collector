@@ -50,11 +50,11 @@ func (s *Service) GetCollections(ctx context.Context, filter entity.CollectionFi
 	}
 
 	// Apply time range filters if provided
-	if filter.FromTime.IsSome() {
-		sql = sql.Where(sq.GtOrEq{"created_at": filter.FromTime.Unwrap()})
+	if filter.FromTime.IsPresent() {
+		sql = sql.Where(sq.GtOrEq{"created_at": filter.FromTime.OrEmpty()})
 	}
-	if filter.ToTime.IsSome() {
-		sql = sql.Where(sq.LtOrEq{"created_at": filter.ToTime.Unwrap()})
+	if filter.ToTime.IsPresent() {
+		sql = sql.Where(sq.LtOrEq{"created_at": filter.ToTime.OrEmpty()})
 	}
 
 	// Execute query and scan results

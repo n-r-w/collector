@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/moznion/go-optional"
+	"github.com/samber/mo"
 )
 
 // CollectionID is a unique identifier for a task.
@@ -31,18 +31,18 @@ type Collection struct {
 	// CreatedAt is the timestamp when collection was created
 	CreatedAt time.Time
 	// StartedAt is the timestamp when collection was started
-	StartedAt optional.Option[time.Time]
+	StartedAt mo.Option[time.Time]
 	// UpdatedAt is the timestamp of the last update
-	UpdatedAt optional.Option[time.Time]
+	UpdatedAt mo.Option[time.Time]
 	// CompletedAt is the timestamp when collection reached terminal state
-	CompletedAt optional.Option[time.Time]
+	CompletedAt mo.Option[time.Time]
 
 	// ResultID is the ID of the result in the storage
-	ResultID optional.Option[ResultID]
+	ResultID mo.Option[ResultID]
 	// ErrorMessage contains error message if collection failed
-	ErrorMessage optional.Option[string]
+	ErrorMessage mo.Option[string]
 	// ErrorCode contains error code if collection failed
-	ErrorCode optional.Option[int]
+	ErrorCode mo.Option[int]
 }
 
 // IsOutOfTimeLimit returns true if collection is out of time limit.
@@ -79,10 +79,10 @@ func (c *Collection) SetStatus(status CollectionStatus) error {
 	now := time.Now()
 
 	c.Status = status
-	c.UpdatedAt = optional.Some(now)
+	c.UpdatedAt = mo.Some(now)
 
 	if status.IsTerminal() {
-		c.CompletedAt = optional.Some(now)
+		c.CompletedAt = mo.Some(now)
 	}
 
 	return nil
@@ -90,13 +90,13 @@ func (c *Collection) SetStatus(status CollectionStatus) error {
 
 // SetError sets error message and updates status to failed.
 func (c *Collection) SetError(err string) error {
-	c.ErrorMessage = optional.Some(err)
+	c.ErrorMessage = mo.Some(err)
 	return c.SetStatus(StatusFailed)
 }
 
 // CollectionFilter contains parameters for filtering collections.
 type CollectionFilter struct {
 	Statuses []CollectionStatus
-	FromTime optional.Option[time.Time] // created_at
-	ToTime   optional.Option[time.Time] // created_at
+	FromTime mo.Option[time.Time] // created_at
+	ToTime   mo.Option[time.Time] // created_at
 }

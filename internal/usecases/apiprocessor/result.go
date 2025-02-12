@@ -18,13 +18,13 @@ func (s *Service) GetResult(ctx context.Context, collectionID entity.CollectionI
 		return nil, fmt.Errorf("collection %d is not completed: %w", collectionID, entity.ErrInvalidStatus)
 	}
 
-	if collection.ResultID.IsNone() {
+	if collection.ResultID.IsAbsent() {
 		resultChan := make(chan entity.RequestChunk)
 		close(resultChan)
 		return resultChan, nil
 	}
 
-	resultChan, err := s.resultGetter.GetResult(ctx, collection.ResultID.Unwrap())
+	resultChan, err := s.resultGetter.GetResult(ctx, collection.ResultID.OrEmpty())
 	if err != nil {
 		return nil, fmt.Errorf("failed to get result: %w", err)
 	}

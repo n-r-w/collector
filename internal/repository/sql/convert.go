@@ -6,9 +6,9 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/moznion/go-optional"
 	"github.com/n-r-w/ammo-collector/internal/entity"
 	"github.com/n-r-w/ammo-collector/internal/repository/sql/dbmodel"
+	"github.com/samber/mo"
 )
 
 type criteriaDTO struct {
@@ -21,34 +21,34 @@ type criteriaDTO struct {
 
 // ConvertCollectionToEntity converts database Collection to an entity.Collection.
 func ConvertCollectionToEntity(collection dbmodel.Collection) (entity.Collection, error) {
-	var startedAt optional.Option[time.Time]
+	var startedAt mo.Option[time.Time]
 	if collection.StartedAt.Valid {
-		startedAt = optional.Some(collection.StartedAt.Time)
+		startedAt = mo.Some(collection.StartedAt.Time)
 	}
 
-	var updatedAt optional.Option[time.Time]
+	var updatedAt mo.Option[time.Time]
 	if collection.UpdatedAt.Valid {
-		updatedAt = optional.Some(collection.UpdatedAt.Time)
+		updatedAt = mo.Some(collection.UpdatedAt.Time)
 	}
 
-	var completedAt optional.Option[time.Time]
+	var completedAt mo.Option[time.Time]
 	if collection.CompletedAt.Valid {
-		completedAt = optional.Some(collection.CompletedAt.Time)
+		completedAt = mo.Some(collection.CompletedAt.Time)
 	}
 
-	var resultID optional.Option[entity.ResultID]
+	var resultID mo.Option[entity.ResultID]
 	if collection.ResultID.Valid {
-		resultID = optional.Some(entity.ResultID(collection.ResultID.String))
+		resultID = mo.Some(entity.ResultID(collection.ResultID.String))
 	}
 
-	var errorMessage optional.Option[string]
+	var errorMessage mo.Option[string]
 	if collection.ErrorMessage.Valid {
-		errorMessage = optional.Some(collection.ErrorMessage.String)
+		errorMessage = mo.Some(collection.ErrorMessage.String)
 	}
 
-	var errorCode optional.Option[int]
+	var errorCode mo.Option[int]
 	if collection.ErrorCode.Valid {
-		errorCode = optional.Some(int(collection.ErrorCode.Int32))
+		errorCode = mo.Some(int(collection.ErrorCode.Int32))
 	}
 
 	var (

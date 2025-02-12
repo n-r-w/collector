@@ -16,7 +16,6 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/kenshaw/inflector v0.3.0
 	github.com/kenshaw/snaker v0.4.2
-	github.com/moznion/go-optional v0.12.0
 	github.com/n-r-w/bootstrap v1.0.6
 	github.com/n-r-w/ctxlog v1.0.3
 	github.com/n-r-w/grpcsrv v1.0.6
@@ -25,6 +24,7 @@ require (
 	github.com/n-r-w/squirrel v1.4.2
 	github.com/n-r-w/testdock/v2 v2.2.0
 	github.com/samber/lo v1.49.1
+	github.com/samber/mo v1.13.0
 	github.com/stretchr/testify v1.10.0
 	github.com/testcontainers/testcontainers-go v0.35.0
 	github.com/testcontainers/testcontainers-go/modules/minio v0.35.0
@@ -63,6 +63,7 @@ require (
 	github.com/moby/sys/user v0.3.0 // indirect
 	github.com/moby/sys/userns v0.1.0 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
+	github.com/moznion/go-optional v0.12.0 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
 	github.com/shirou/gopsutil/v3 v3.24.5 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect

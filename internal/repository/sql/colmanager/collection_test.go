@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/moznion/go-optional"
 	"github.com/n-r-w/ammo-collector/internal/config"
 	"github.com/n-r-w/ammo-collector/internal/entity"
 	"github.com/n-r-w/ammo-collector/internal/repository/sql"
@@ -16,6 +15,7 @@ import (
 	"github.com/n-r-w/pgh/v2/px/db"
 	"github.com/n-r-w/pgh/v2/txmgr"
 	sq "github.com/n-r-w/squirrel"
+	"github.com/samber/mo"
 	"github.com/stretchr/testify/require"
 )
 
@@ -144,11 +144,11 @@ func TestGetCollection(t *testing.T) {
 	require.Equal(t, collectionID, collection.ID)
 	require.Equal(t, entity.StatusInProgress, collection.Status)
 	require.EqualValues(t, 42, collection.RequestCount)
-	require.True(t, collection.StartedAt.IsSome())
-	require.True(t, collection.UpdatedAt.IsSome())
-	require.False(t, collection.CompletedAt.IsSome())
-	require.WithinDuration(t, startedAt.UTC(), collection.StartedAt.Unwrap().UTC(), time.Millisecond)
-	require.WithinDuration(t, updatedAt.UTC(), collection.UpdatedAt.Unwrap().UTC(), time.Millisecond)
+	require.True(t, collection.StartedAt.IsPresent())
+	require.True(t, collection.UpdatedAt.IsPresent())
+	require.False(t, collection.CompletedAt.IsPresent())
+	require.WithinDuration(t, startedAt.UTC(), collection.StartedAt.OrEmpty().UTC(), time.Millisecond)
+	require.WithinDuration(t, updatedAt.UTC(), collection.UpdatedAt.OrEmpty().UTC(), time.Millisecond)
 
 	// Test getting non-existent collection
 	nonExistentID := entity.CollectionID(999999)
@@ -239,8 +239,8 @@ func TestGetCollections(t *testing.T) {
 
 	// Test 3: Filter by time range
 	collections, err = s.GetCollections(ctx, entity.CollectionFilter{
-		FromTime: optional.Some(timeDay2.Add(-time.Hour)),
-		ToTime:   optional.Some(timeDay2.Add(time.Hour)),
+		FromTime: mo.Some(timeDay2.Add(-time.Hour)),
+		ToTime:   mo.Some(timeDay2.Add(time.Hour)),
 	})
 	require.NoError(t, err)
 	require.Len(t, collections, 1)
@@ -249,8 +249,8 @@ func TestGetCollections(t *testing.T) {
 	// Test 4: Filter by both status and time range
 	collections, err = s.GetCollections(ctx, entity.CollectionFilter{
 		Statuses: []entity.CollectionStatus{entity.StatusCompleted},
-		FromTime: optional.Some(timeDay3.Add(-time.Hour)),
-		ToTime:   optional.Some(timeDay3.Add(time.Hour)),
+		FromTime: mo.Some(timeDay3.Add(-time.Hour)),
+		ToTime:   mo.Some(timeDay3.Add(time.Hour)),
 	})
 	require.NoError(t, err)
 	require.Len(t, collections, 1)

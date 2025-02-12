@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/moznion/go-optional"
 	"github.com/n-r-w/ammo-collector/internal/entity"
 	"github.com/n-r-w/ammo-collector/internal/pb/api/collector"
 	"github.com/n-r-w/ctxlog"
+	"github.com/samber/mo"
 	"google.golang.org/grpc/codes"
 	grpc_status "google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -71,12 +71,12 @@ func convertCollectionFromEntity(collection entity.Collection) *collector.Collec
 	protoStatus := &collector.Collection{ //exhaustruct:enforce
 		CollectionId: int64(collection.ID),
 		Status:       convertCollectionStatusFromEntity(collection.Status),
-		StartedAt:    timeToProtoPtr(collection.StartedAt.UnwrapAsPtr()),
-		CompletedAt:  timeToProtoPtr(collection.CompletedAt.UnwrapAsPtr()),
-		ErrorMessage: collection.ErrorMessage.Unwrap(),
+		StartedAt:    timeToProtoPtr(collection.StartedAt.ToPointer()),
+		CompletedAt:  timeToProtoPtr(collection.CompletedAt.ToPointer()),
+		ErrorMessage: collection.ErrorMessage.OrEmpty(),
 		RequestCount: uint64(collection.RequestCount), //nolint:gosec // ok
 		Task:         convertTaskFromEntity(collection.Task),
-		ResultId:     string(collection.ResultID.Unwrap()),
+		ResultId:     string(collection.ResultID.OrEmpty()),
 	}
 
 	return protoStatus
@@ -125,8 +125,8 @@ func convertCollectionFilterToEntity(req *collector.GetCollectionsRequest) (enti
 
 	return entity.CollectionFilter{
 		Statuses: statuses,
-		FromTime: optional.FromNillable(timeFromProto(req.GetFromTime())),
-		ToTime:   optional.FromNillable(timeFromProto(req.GetToTime())),
+		FromTime: mo.PointerToOption(timeFromProto(req.GetFromTime())),
+		ToTime:   mo.PointerToOption(timeFromProto(req.GetToTime())),
 	}, nil
 }
 

@@ -54,11 +54,11 @@ func (s *Service) finalizeCollections(ctxMain context.Context, collections []ent
 				}
 
 				if acquired {
-					// lock is already acquired
-					ctxlog.Debug(ctxMain, "finalizer lock is already acquired, skipping",
+					ctxlog.Debug(ctxMain, "finalizer lock released",
 						slog.String("collection_id", collection.ID.String()))
 				} else {
-					ctxlog.Debug(ctxMain, "finalizer lock released",
+					// lock is already acquired
+					ctxlog.Debug(ctxMain, "finalizer lock is already acquired, skipping",
 						slog.String("collection_id", collection.ID.String()))
 				}
 
@@ -94,7 +94,7 @@ func (s *Service) finalizeCollectionHelper(ctx context.Context, collection entit
 	ctxlog.Debug(ctx, "finalizing collection", slog.String("collection_id", collection.ID.String()))
 
 	// if collection has no requests, skip result saving
-	if collection.Task.Completion.RequestCountLimit > 0 {
+	if collection.RequestCount > 0 {
 		// Fetch requestsCh for this collection
 		requestsCh, err := s.resultGetter.GetResultChan(ctx, collection.ID, collection.Task.Completion.RequestCountLimit)
 		if err != nil {

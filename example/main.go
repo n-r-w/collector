@@ -120,7 +120,7 @@ func sendMessages(
 				return
 			case <-ticker.C:
 				var randomBigMessage strings.Builder
-				for range 10000 {
+				for range 100 {
 					_, _ = randomBigMessage.WriteString(uuid.New().String())
 				}
 
