@@ -5,11 +5,17 @@ skinparam ParticipantPadding 20
 skinparam BoxPadding 10
 
 actor "User" as user
+
+box "Ammoclient" #LightBlue
 participant "Service\nwith ammoclient" as client
+end box
+
 queue "Kafka" as kafka
-box "Ammo Collector" #LightBlue    
+
+box "Ammo Collector" #LightGreen
     participant "Collector Service\n(REST/gRPC)" as collector
 end box
+
 database "PostgreSQL" as postgres
 database "S3" as s3
 
@@ -18,12 +24,11 @@ user -> collector: Create task with collection criteria
 collector -> postgres: Create collection
 collector --> user: Return collection ID
 
-== Request Collection ==
-client -> kafka: GRPC/HTTP request\njson body
+== Filling the collections == 
+client -> kafka: Send GRPC/HTTP\nrequest (json)
 collector -> kafka: Consume requests
 collector -> collector: Check request against\ncollection criteria
 collector -> postgres: Save matching requests\nlinked to collection
-
 
 == Collections Completion ==
 collector -> postgres: Fetch active collections
