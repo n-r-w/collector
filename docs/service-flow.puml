@@ -1,10 +1,11 @@
-@startuml
+@startuml Ammo Collector Workflow
 !theme plain
 
 title Ammo Collector Workflow
 
-actor Client
-Client -> Collector: Send task  
+actor User
+participant Microservice
+User -> Collector: Send task  
 
 participant AmmoClient as "ammoclient\n(pkg)"
 queue Kafka
@@ -14,7 +15,7 @@ database S3
 
 Collector -> PostgreSQL: Create collection
 
-Client -> AmmoClient: SendGRPCRequest/SendHTTPRequest
+Microservice -> AmmoClient: SendGRPCRequest/SendHTTPRequest
 AmmoClient -> Kafka: Publish requests
 
 loop Background Processing
@@ -41,8 +42,8 @@ group Maintenance
   Collector -> S3: Clean old archives
 end
 
-Client -> Collector: Check collection state
-Client -> Collector: Retrieve zip archive
-Client --> S3: Retrieve zip archive (optional)
+User -> Collector: Check collection state
+User -> Collector: Retrieve zip archive
+User --> S3: Retrieve zip archive (optional)
 
 @enduml
