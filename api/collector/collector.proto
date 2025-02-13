@@ -82,7 +82,16 @@ service CollectionService {
     }
 
     // GetResult returns the result of a collection as a stream of bytes.
-    rpc GetResult(GetResultRequest) returns (stream GetResultResponse) {}
+    rpc GetResult(GetResultRequest) returns (stream GetResultResponse) {
+        option (google.api.http) = {
+            get: "/v1/collections/{collection_id}/result"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            summary: "Get collection result"
+            description: "Returns the collection result as zip archive"
+            tags: [ "collections" ]
+        };
+    }
 }
 
 // CreateTaskRequest contains parameters for starting a new collection

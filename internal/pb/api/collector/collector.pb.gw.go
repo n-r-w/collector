@@ -197,6 +197,40 @@ func local_request_CollectionService_CancelCollection_0(ctx context.Context, mar
 
 }
 
+func request_CollectionService_GetResult_0(ctx context.Context, marshaler runtime.Marshaler, client CollectionServiceClient, req *http.Request, pathParams map[string]string) (CollectionService_GetResultClient, runtime.ServerMetadata, error) {
+	var protoReq GetResultRequest
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["collection_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "collection_id")
+	}
+
+	protoReq.CollectionId, err = runtime.Int64(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "collection_id", err)
+	}
+
+	stream, err := client.GetResult(ctx, &protoReq)
+	if err != nil {
+		return nil, metadata, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		return nil, metadata, err
+	}
+	metadata.HeaderMD = header
+	return stream, metadata, nil
+
+}
+
 // RegisterCollectionServiceHandlerServer registers the http handlers for service CollectionService to "mux".
 // UnaryRPC     :call CollectionServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -302,6 +336,13 @@ func RegisterCollectionServiceHandlerServer(ctx context.Context, mux *runtime.Se
 
 		forward_CollectionService_CancelCollection_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
+	})
+
+	mux.Handle("GET", pattern_CollectionService_GetResult_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
+		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+		return
 	})
 
 	return nil
@@ -433,6 +474,28 @@ func RegisterCollectionServiceHandlerClient(ctx context.Context, mux *runtime.Se
 
 	})
 
+	mux.Handle("GET", pattern_CollectionService_GetResult_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/ammo.collector.CollectionService/GetResult", runtime.WithHTTPPathPattern("/v1/collections/{collection_id}/result"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_CollectionService_GetResult_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_CollectionService_GetResult_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+
+	})
+
 	return nil
 }
 
@@ -444,6 +507,8 @@ var (
 	pattern_CollectionService_GetCollection_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "collections", "collection_id"}, ""))
 
 	pattern_CollectionService_CancelCollection_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "collections", "collection_id"}, ""))
+
+	pattern_CollectionService_GetResult_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "collections", "collection_id", "result"}, ""))
 )
 
 var (
@@ -454,4 +519,6 @@ var (
 	forward_CollectionService_GetCollection_0 = runtime.ForwardResponseMessage
 
 	forward_CollectionService_CancelCollection_0 = runtime.ForwardResponseMessage
+
+	forward_CollectionService_GetResult_0 = runtime.ForwardResponseStream
 )
