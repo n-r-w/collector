@@ -1,49 +1,51 @@
-@startuml Ammo Collector Workflow
+@startuml
 !theme plain
+skinparam backgroundColor white
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
 
-title Ammo Collector Workflow
+actor "User" as user
+participant "Service\nwith ammoclient" as client
+queue "Kafka" as kafka
+box "Ammo Collector" #LightBlue    
+    participant "Collector Service\n(REST/gRPC)" as collector
+end box
+database "PostgreSQL" as postgres
+database "S3" as s3
 
-actor User
-participant Microservice
-User -> Collector: Send task  
+== Setup Collection Task ==
+user -> collector: Create task with collection criteria
+collector -> postgres: Create collection
+collector --> user: Return collection ID
 
-participant AmmoClient as "ammoclient\n(pkg)"
-queue Kafka
-participant "Ammo Collector" as Collector
-database PostgreSQL
-database S3
+== Request Collection ==
+client -> kafka: GRPC/HTTP request\njson body
+collector -> kafka: Consume requests
+collector -> collector: Check request against\ncollection criteria
+collector -> postgres: Save matching requests\nlinked to collection
 
-Collector -> PostgreSQL: Create collection
 
-Microservice -> AmmoClient: SendGRPCRequest/SendHTTPRequest
-AmmoClient -> Kafka: Publish requests
+== Collections Completion ==
+collector -> postgres: Fetch active collections
+collector -> collector: Check collections completion\ncriteria
+collector -> postgres: Try acquire distributed\n(postgresql advisory) lock\non collection ID
+collector -> postgres: Fetch collected requests
+collector -> s3: Save as zip archive
+collector -> postgres: Update collection status
 
-loop Background Processing
-  Collector -> Kafka: Consume requests
-  Collector -> Collector: Check against collection criteria
-  
-  alt Matches criteria
-    Collector -> PostgreSQL: Store request
-    Collector -> PostgreSQL: Link to collection
-  end
-end
+== Background Operations ==
+collector -> postgres: Try acquire distributed lock\non clean up
+collector -> postgres: Cleanup of old requests
+collector -> s3: Cleanup of old archives
 
-Collector -> Collector: Monitor collection status
+== Collection Status & Results ==
+user -> collector: Check collection status, collections list, etc.
+collector -> postgres: Query collection status
+collector --> user: Return status and s3 URL
 
-alt Task completion
-  Collector -> PostgreSQL: Gather requests
-  Collector -> S3: Zip & store archive  
-end
-
-|||
-
-group Maintenance
-  Collector -> PostgreSQL: Clean old requests
-  Collector -> S3: Clean old archives
-end
-
-User -> Collector: Check collection state
-User -> Collector: Retrieve zip archive
-User --> S3: Retrieve zip archive (optional)
+user -> collector: Request collection archive by ID
+collector -> s3: Query collection archive
+collector --> user: Return collection archive
+user --> s3: Direct request collection archive (if available)
 
 @enduml
