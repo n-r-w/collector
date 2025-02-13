@@ -1,0 +1,48 @@
+@startuml
+!theme plain
+
+title Ammo Collector Workflow
+
+actor Client
+Client -> Collector: Send task  
+
+Collector -> PostgreSQL: Create collection
+
+participant AmmoClient as "ammoclient\n(pkg)"
+queue Kafka
+participant "Ammo Collector" as Collector
+database PostgreSQL
+database S3
+
+Client -> AmmoClient: SendGRPCRequest/SendHTTPRequest
+AmmoClient -> Kafka: Publish requests
+
+loop Background Processing
+  Collector -> Kafka: Consume requests
+  Collector -> Collector: Check against collection criteria
+  
+  alt Matches criteria
+    Collector -> PostgreSQL: Store request
+    Collector -> PostgreSQL: Link to collection
+  end
+end
+
+Collector -> Collector: Monitor collection status
+
+alt Task completion
+  Collector -> PostgreSQL: Gather requests
+  Collector -> S3: Zip & store archive  
+end
+
+|||
+
+group Maintenance
+  Collector -> PostgreSQL: Clean old requests
+  Collector -> S3: Clean old archives
+end
+
+Client -> Collector: Check collection state
+Client -> Collector: Retrieve zip archive
+Client --> S3: Retrieve zip archive (optional)
+
+@enduml

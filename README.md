@@ -20,6 +20,10 @@ The Ammo Collector service is designed to capture and collect content from HTTP 
 
 TODO: Full test coverage
 
+## Workflow
+
+![File Representation](docs/service-flow.svg)
+
 ## Architecture Overview
 
 ![File Representation](docs/overview.svg)
