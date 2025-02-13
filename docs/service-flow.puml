@@ -6,13 +6,13 @@ title Ammo Collector Workflow
 actor Client
 Client -> Collector: Send task  
 
-Collector -> PostgreSQL: Create collection
-
 participant AmmoClient as "ammoclient\n(pkg)"
 queue Kafka
 participant "Ammo Collector" as Collector
 database PostgreSQL
 database S3
+
+Collector -> PostgreSQL: Create collection
 
 Client -> AmmoClient: SendGRPCRequest/SendHTTPRequest
 AmmoClient -> Kafka: Publish requests
