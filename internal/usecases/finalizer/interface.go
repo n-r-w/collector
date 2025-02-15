@@ -6,6 +6,8 @@ import (
 	"github.com/n-r-w/ammo-collector/internal/entity"
 )
 
+//go:generate mockgen -source interface.go -destination interface_mock.go -package finalizer
+
 // ICollectionReader is responsible for reading collection data.
 type ICollectionReader interface {
 	// GetCollections returns all active collections.

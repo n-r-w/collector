@@ -151,3 +151,81 @@ func TestHTTP(t *testing.T) {
 	require.Error(t, c.SendHTTPRequest(ctx, nil, handlerData, headersData))
 	require.Error(t, c.SendHTTPRequest(ctx, []byte(messageData), "", headersData))
 }
+
+func TestPassRate(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	const messageData = "test message"
+	headersData := map[string][]string{"Content-Type": {"application/json"}}
+
+	// Test invalid pass rates
+	_, err := ammoclient.New(
+		ammoclient.WithSendToKafka(func(ctx context.Context, data []byte) error { return nil }),
+		ammoclient.WithPassRate(-0.1),
+	)
+	require.Error(t, err)
+
+	_, err = ammoclient.New(
+		ammoclient.WithSendToKafka(func(ctx context.Context, data []byte) error { return nil }),
+		ammoclient.WithPassRate(1.1),
+	)
+	require.Error(t, err)
+
+	// Test passRate = 0 (all requests should be ignored)
+	processed := 0
+	c, err := ammoclient.New(
+		ammoclient.WithSendToKafka(func(ctx context.Context, data []byte) error {
+			processed++
+			return nil
+		}),
+		ammoclient.WithPassRate(0),
+	)
+	require.NoError(t, err)
+
+	for i := 0; i < 100; i++ {
+		err := c.SendHTTPRequest(ctx, []byte(messageData), "handler", headersData)
+		require.NoError(t, err)
+	}
+	require.Equal(t, 0, processed, "with passRate=0, no requests should be processed")
+
+	// Test passRate = 1 (all requests should be processed)
+	processed = 0
+	c, err = ammoclient.New(
+		ammoclient.WithSendToKafka(func(ctx context.Context, data []byte) error {
+			processed++
+			return nil
+		}),
+		ammoclient.WithPassRate(1),
+	)
+	require.NoError(t, err)
+
+	for i := 0; i < 100; i++ {
+		err := c.SendHTTPRequest(ctx, []byte(messageData), "handler", headersData)
+		require.NoError(t, err)
+	}
+	require.Equal(t, 100, processed, "with passRate=1, all requests should be processed")
+
+	// Test passRate = 0.5 (approximately half of requests should be processed)
+	processed = 0
+	c, err = ammoclient.New(
+		ammoclient.WithSendToKafka(func(ctx context.Context, data []byte) error {
+			processed++
+			return nil
+		}),
+		ammoclient.WithPassRate(0.5),
+	)
+	require.NoError(t, err)
+
+	for i := 0; i < 1000; i++ {
+		err := c.SendHTTPRequest(ctx, []byte(messageData), "handler", headersData)
+		require.NoError(t, err)
+	}
+
+	// With 1000 requests and passRate=0.5, we expect roughly 500 requests to be processed
+	// Allow for some statistical variance (±10%)
+	expectedMin := 450
+	expectedMax := 550
+	require.Greater(t, processed, expectedMin, "processed count should be > %d", expectedMin)
+	require.Less(t, processed, expectedMax, "processed count should be < %d", expectedMax)
+}

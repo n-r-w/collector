@@ -6,6 +6,8 @@ import (
 	"github.com/n-r-w/ammo-collector/internal/entity"
 )
 
+//go:generate mockgen -source interface.go -destination interface_mock.go -package apiprocessor
+
 // ICollectionCreator is responsible for creating new collections.
 type ICollectionCreator interface {
 	// CreateCollection creates a new collection with the given parameters and returns its ID.

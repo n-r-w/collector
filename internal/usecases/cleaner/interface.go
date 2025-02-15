@@ -6,6 +6,8 @@ import (
 	"github.com/n-r-w/ammo-collector/internal/entity"
 )
 
+//go:generate mockgen -source interface.go -destination interface_mock.go -package cleaner
+
 // ILocker is a service for locking resources.
 type ILocker interface {
 	// TryLockFunc executes a function with a lock.

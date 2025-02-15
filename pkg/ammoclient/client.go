@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math/rand"
 	"time"
 
 	"github.com/IBM/sarama"
@@ -35,16 +36,27 @@ func WithSendToKafkaSarama(ch chan<- *sarama.ProducerMessage, topic string) Opti
 	}
 }
 
+// WithPassRate sets the percentage of requests that are processed (between 0 and 1).
+// Default is 1.0 (all requests are processed).
+func WithPassRate(rate float64) Option {
+	return func(c *Client) {
+		c.passRate = rate
+	}
+}
+
 // Client represents the ammo client that handles request collection.
 type Client struct {
 	fn       SendToKafkaFunc
 	saramaCh chan<- *sarama.ProducerMessage
 	topic    string
+	passRate float64
 }
 
 // New creates a new ammo client instance.
 func New(opts ...Option) (*Client, error) {
-	c := &Client{}
+	c := &Client{
+		passRate: 1.0, // default pass rate is 1.0
+	}
 
 	for _, opt := range opts {
 		opt(c)
@@ -62,6 +74,10 @@ func New(opts ...Option) (*Client, error) {
 		return nil, errors.New("ammoclient: SendToKafkaSarama is set, but topic is empty")
 	}
 
+	if c.passRate < 0 || c.passRate > 1 {
+		return nil, errors.New("ammoclient: passRate must be between 0 and 1")
+	}
+
 	return c, nil
 }
 
@@ -75,6 +91,10 @@ func (c *Client) SendGRPCRequest(
 	}
 	if handler == "" {
 		return errors.New("ammoclient: handler is empty")
+	}
+
+	if rand.Float64() > c.passRate { //nolint:gosec // ok for rate
+		return nil
 	}
 
 	headersTotal := make(map[string][]string, len(headers))
@@ -111,6 +131,10 @@ func (c *Client) SendHTTPRequest(
 	}
 	if handler == "" {
 		return errors.New("ammoclient: handler is empty")
+	}
+
+	if rand.Float64() > c.passRate { //nolint:gosec // ok for rate
+		return nil
 	}
 
 	return c.sendData(ctx, handler, headers, req)
