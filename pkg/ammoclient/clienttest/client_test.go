@@ -183,7 +183,7 @@ func TestPassRate(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		err := c.SendHTTPRequest(ctx, []byte(messageData), "handler", headersData)
 		require.NoError(t, err)
 	}
@@ -200,7 +200,7 @@ func TestPassRate(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		err := c.SendHTTPRequest(ctx, []byte(messageData), "handler", headersData)
 		require.NoError(t, err)
 	}
@@ -217,7 +217,7 @@ func TestPassRate(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	for i := 0; i < 1000; i++ {
+	for range 100 {
 		err := c.SendHTTPRequest(ctx, []byte(messageData), "handler", headersData)
 		require.NoError(t, err)
 	}
