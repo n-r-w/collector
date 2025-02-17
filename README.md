@@ -9,8 +9,8 @@ The service coordinates distributed request collection through Kafka, processing
 
 TODO:
 
-- Add the setting of the percentage of collection requests on the ammoclient level
 - Full test coverage
+- More metrics
 
 ## Workflow
 
