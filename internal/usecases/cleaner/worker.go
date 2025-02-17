@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"time"
 
 	"github.com/n-r-w/ammo-collector/internal/entity"
 	"github.com/n-r-w/ctxlog"
@@ -19,7 +18,7 @@ func (s *Service) worker(ctx context.Context) error {
 
 	// get all collections
 	collections, err := s.collectionReader.GetCollections(ctx, entity.CollectionFilter{
-		ToTime: mo.Some(time.Now().Add(-s.cfg.Collection.RetentionPeriod)),
+		ToTime: mo.Some(s.now().Add(-s.cfg.Collection.RetentionPeriod)),
 	})
 	if err != nil {
 		return fmt.Errorf("get collections: %w", err)
@@ -48,6 +47,11 @@ func (s *Service) worker(ctx context.Context) error {
 					continue
 				}
 				toCleanupObjectStorage = append(toCleanupObjectStorage, c.ResultID.OrEmpty())
+			}
+
+			if len(toCleanupObjectStorage) == 0 {
+				ctxlog.Debug(ctx, "no object storage to clean up")
+				return nil
 			}
 
 			// cleanup object storage

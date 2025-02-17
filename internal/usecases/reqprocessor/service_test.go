@@ -3,16 +3,23 @@ package reqprocessor
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"regexp"
 	"testing"
 
 	"github.com/n-r-w/ammo-collector/internal/entity"
+	"github.com/n-r-w/ctxlog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 )
 
 func TestService_HandleRequest(t *testing.T) {
+	ctx := ctxlog.MustContext(context.Background(),
+		ctxlog.WithTesting(t),
+		ctxlog.WithLevel(slog.LevelDebug),
+	)
+
 	t.Parallel()
 
 	tests := []struct {
@@ -160,7 +167,7 @@ func TestService_HandleRequest(t *testing.T) {
 			t.Parallel()
 
 			svc, requests := tt.setup(t)
-			err := svc.HandleRequest(context.Background(), requests)
+			err := svc.HandleRequest(ctx, requests)
 
 			if tt.wantErr {
 				require.Error(t, err)

@@ -44,7 +44,6 @@ func SetupTest[T any](
 	logger := ctxlog.Must(
 		ctxlog.WithTesting(t),
 		ctxlog.WithLevel(slog.LevelDebug),
-		ctxlog.WithEnvType(ctxlog.EnvDevelopment),
 	)
 	// put logger into context
 	ctx := ctxlog.ToContext(context.Background(), logger)

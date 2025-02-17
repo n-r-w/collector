@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/n-r-w/ammo-collector/internal/config"
 	"github.com/n-r-w/bootstrap"
@@ -14,6 +15,7 @@ import (
 // Service is responsible for cleaning up database.
 type Service struct {
 	cfg                  *config.Config
+	now                  func() time.Time // for testing
 	executor             *executor.Service
 	collectionReader     ICollectionReader
 	locker               ILocker
@@ -28,6 +30,7 @@ func New(
 ) (*Service, error) {
 	s := &Service{
 		cfg:                  cfg,
+		now:                  time.Now,
 		locker:               locker,
 		collectionReader:     collectionReader,
 		databaseCleaner:      databaseCleaner,
