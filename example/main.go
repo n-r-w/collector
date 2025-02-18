@@ -191,9 +191,10 @@ func sendTasks(
 					},
 				})
 				if err != nil {
-					log.Printf("failed to create task: %v", err)
+					log.Printf("failed to create task for %s:%d: %v", cfg.Server.Host, cfg.GRPC.Port, err)
+				} else {
+					log.Printf("created task. collection id: %d", resp.GetCollectionId())
 				}
-				log.Printf("created task. collection id: %d", resp.GetCollectionId())
 			}
 		}
 	}()

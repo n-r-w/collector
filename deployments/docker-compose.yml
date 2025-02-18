@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  ammo-collector:
+    build:
+      context: ..
+      dockerfile: deployments/Dockerfile
+    ports:
+      - "8090:8090"  # gRPC
+      - "8091:8091"  # HTTP
+      - "8092:8092"  # Prometheus metrics
+    environment:
+      - AMMO_COLLECTOR_LOG_LEVEL=DEBUG
+      - AMMO_COLLECTOR_RETENTION_PERIOD=1m
+      - AMMO_COLLECTOR_CLEANUP_INTERVAL=10s
+      - AMMO_COLLECTOR_DATABASE_URL=postgresql://collector:collector@postgres:5432/collector
+      - AMMO_COLLECTOR_SERVER_HOST=0.0.0.0
+      - AMMO_COLLECTOR_S3_ENDPOINT=http://minio:9000
+      - AMMO_COLLECTOR_S3_ACCESS_KEY=minioadmin
+      - AMMO_COLLECTOR_S3_SECRET_KEY=minioadmin
+      - AMMO_COLLECTOR_S3_BUCKET=collector
+      - AMMO_COLLECTOR_S3_REGION=us-east-1
+      - AMMO_COLLECTOR_S3_MINIO_SUPPORT=true
+      - AMMO_COLLECTOR_S3_USE_PATH_STYLE=true
+      - AMMO_COLLECTOR_KAFKA_BROKERS=kafka:9092
+      - AMMO_COLLECTOR_KAFKA_TOPIC=ammo-collector
+      - AMMO_COLLECTOR_KAFKA_GROUP_ID=ammo-collector
+      - AMMO_COLLECTOR_METRICS_PROMETHEUS_ENDPOINT=0.0.0.0:8092
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+      kafka:
+        condition: service_started
+      minio:
+        condition: service_started
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.3
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - ZOOKEEPER_TICK_TIME=2000
+
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.3
+    depends_on:
+      - zookeeper
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+      - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+
+  minio:
+    image: minio/minio:latest
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      - POSTGRES_USER=collector
+      - POSTGRES_PASSWORD=collector
+      - POSTGRES_DB=collector
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U collector"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  migrations:
+    build:
+      context: ..
+      dockerfile: deployments/migrations.Dockerfile
+    environment:
+      - AMMO_COLLECTOR_DATABASE_URL=postgresql://collector:collector@postgres:5432/collector
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  createbuckets:
+    image: amazon/aws-cli:2.15.0
+    environment:
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - AWS_DEFAULT_REGION=us-east-1
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "aws --endpoint-url http://minio:9000 s3 mb s3://collector 2>/dev/null || true"
+    depends_on:
+      - minio
+
+  example:
+    build:
+      context: ..
+      dockerfile: deployments/example.Dockerfile
+    command: ["-req=1s", "-task=10s", "-limit=10"]
+    environment:
+      - AMMO_COLLECTOR_SERVER_HOST=ammo-collector
+      - AMMO_COLLECTOR_GRPC_PORT=8090
+      - AMMO_COLLECTOR_KAFKA_BROKERS=kafka:9092
+      - AMMO_COLLECTOR_KAFKA_TOPIC=ammo-collector
+      - AMMO_COLLECTOR_DATABASE_URL=postgresql://collector:collector@postgres:5432/collector
+      - AMMO_COLLECTOR_S3_ENDPOINT=http://minio:9000
+      - AMMO_COLLECTOR_S3_SECRET_KEY=minioadmin
+      - AMMO_COLLECTOR_S3_BUCKET=collector
+      - AMMO_COLLECTOR_S3_ACCESS_KEY=minioadmin
+    depends_on:
+      ammo-collector:
+        condition: service_started
+      kafka:
+        condition: service_started
+
+volumes:
+  minio_data:
+  postgres_data:

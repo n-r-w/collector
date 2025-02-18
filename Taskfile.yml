@@ -1,5 +1,13 @@
 version: "3"
 
+dotenv: ['.env']
+
+vars:
+  DOCKER_IMAGE: nrw2000/collector
+  DOCKER_TAG:
+    sh: git describe --tags --always --dirty
+  DOCKER_FULL_IMAGE: '{{.DOCKER_IMAGE}}:{{.DOCKER_TAG}}'
+
 tasks:
   build:
     desc: "Build collector"
@@ -98,6 +106,22 @@ tasks:
         xo schema -o ./internal/repository/sql/dbmodel -g='json:"{{`{{ .SQLName }}`}}" db:"{{`{{ .SQLName }}`}}"' \
         "{{ .AMMO_COLLECTOR_DATABASE_URL }} " --src ./internal/repository/sql/dbmodel/xotempl/
 
+  docker-build:
+    desc: "Build docker image"
+    cmds:
+      - docker build -t {{.DOCKER_FULL_IMAGE}} -f deployments/Dockerfile .
+
+  docker-run:
+    desc: "Run docker container"
+    deps: [docker-build]
+    cmds:
+      - docker compose -f deployments/docker-compose.yml up
+
+  docker-stop:
+    desc: "Stop and remove docker container"
+    cmds:
+      - docker compose -f deployments/docker-compose.yml down
+
   migrations-up:
     desc: "Up migrations"
     cmds:
@@ -112,3 +136,16 @@ tasks:
     desc: "Generate google wire DI container"
     cmds:
       - wire ./internal/prepare/di
+
+  docker-build:
+    desc: "Build Docker image"
+    cmds:
+      - docker build -t {{.DOCKER_IMAGE}}:{{.DOCKER_TAG}} -f deployments/Dockerfile .
+      - docker tag {{.DOCKER_IMAGE}}:{{.DOCKER_TAG}} {{.DOCKER_IMAGE}}:latest
+
+  docker-push:
+    desc: "Push Docker image to hub.docker.com"
+    deps: [docker-build]
+    cmds:
+      - docker push {{.DOCKER_IMAGE}}:{{.DOCKER_TAG}}
+      - docker push {{.DOCKER_IMAGE}}:latest

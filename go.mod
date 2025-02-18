@@ -18,7 +18,7 @@ require (
 	github.com/kenshaw/snaker v0.4.2
 	github.com/n-r-w/bootstrap v1.0.6
 	github.com/n-r-w/ctxlog v1.0.3
-	github.com/n-r-w/grpcsrv v1.0.6
+	github.com/n-r-w/grpcsrv v1.0.8
 	github.com/n-r-w/kafkaclient v1.0.4
 	github.com/n-r-w/pgh/v2 v2.1.3
 	github.com/n-r-w/squirrel v1.4.2
