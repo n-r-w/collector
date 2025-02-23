@@ -22,7 +22,7 @@ require (
 	github.com/n-r-w/kafkaclient v1.0.4
 	github.com/n-r-w/pgh/v2 v2.1.3
 	github.com/n-r-w/squirrel v1.4.2
-	github.com/n-r-w/testdock/v2 v2.2.0
+	github.com/n-r-w/testdock/v2 v2.2.1
 	github.com/samber/lo v1.49.1
 	github.com/samber/mo v1.13.0
 	github.com/stretchr/testify v1.10.0
@@ -99,7 +99,7 @@ require (
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang-migrate/migrate/v4 v4.18.1 // indirect
+	github.com/golang-migrate/migrate/v4 v4.18.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
