@@ -48,8 +48,12 @@ func (s *Service) finalizeCollections(ctxMain context.Context, collections []ent
 					}
 					return nil
 				})
-			if err != nil {
-				return fmt.Errorf("failed to get lock: %w", err)
+			if !acquired && err != nil {
+				// we did not reach the call to the function in TryLockFunc
+				muErrTotal.Lock()
+				errTotal = errors.Join(errTotal, fmt.Errorf("failed to get lock: %w", err))
+				muErrTotal.Unlock()
+				return nil
 			}
 
 			if acquired {

@@ -6,3 +6,4 @@ bin
 __debug_bin*
 .env
 docs/generate
+.github/copilot-instructions.md
