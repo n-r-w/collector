@@ -3,7 +3,7 @@
 The Ammo Collector service is designed to capture and collect content from HTTP and gRPC requests based on user-defined criteria.
 The service coordinates distributed request collection through Kafka, processing requests against user-defined criteria stored in PostgreSQL. Matching requests are aggregated into collections that automatically archive to S3 when completion conditions are met. Background maintenance tasks ensure resource cleanup while providing real-time collection status tracking and archive access via REST API or direct to S3.
 
-https://hub.docker.com/r/nrw2000/collector
+<https://hub.docker.com/r/nrw2000/collector>
 
 ## Development status
 
@@ -11,6 +11,7 @@ https://hub.docker.com/r/nrw2000/collector
 
 TODO:
 
+- Add the ability to automatically start collection on a schedule.
 - Full test coverage
 - More metrics
 
