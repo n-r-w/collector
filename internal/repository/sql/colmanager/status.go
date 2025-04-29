@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/n-r-w/ammo-collector/internal/entity"
+	"github.com/n-r-w/collector/internal/entity"
 	"github.com/n-r-w/pgh/v2"
 	"github.com/n-r-w/pgh/v2/px"
 	sq "github.com/n-r-w/squirrel"

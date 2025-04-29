@@ -13,7 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	entity "github.com/n-r-w/ammo-collector/internal/entity"
+	entity "github.com/n-r-w/collector/internal/entity"
 	gomock "go.uber.org/mock/gomock"
 )
 

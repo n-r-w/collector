@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/n-r-w/ammo-collector/internal/entity"
+	"github.com/n-r-w/collector/internal/entity"
 )
 
 // GetResult returns a channel that receives result chunks.

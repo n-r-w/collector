@@ -3,8 +3,8 @@ package apiprocessor
 import (
 	"context"
 
-	"github.com/n-r-w/ammo-collector/internal/controller/handlers"
 	"github.com/n-r-w/bootstrap"
+	"github.com/n-r-w/collector/internal/controller/handlers"
 	"github.com/n-r-w/pgh/v2/txmgr"
 )
 

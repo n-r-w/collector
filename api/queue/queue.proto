@@ -4,7 +4,7 @@ package ammo.collector.queue;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/n-r-w/ammo-collector/api/queue";
+option go_package = "github.com/n-r-w/collector/api/queue";
 
 // Request represents a single HTTP/gRPC request to be collected
 message Request {

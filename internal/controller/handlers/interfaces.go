@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 
-	"github.com/n-r-w/ammo-collector/internal/entity"
+	"github.com/n-r-w/collector/internal/entity"
 )
 
 // ICollectionManager is responsible for managing collections.

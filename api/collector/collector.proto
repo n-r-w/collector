@@ -9,7 +9,7 @@ import "validate/validate.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "google/api/annotations.proto";
 
-option go_package = "github.com/n-r-w/ammo-collector/api/collector";
+option go_package = "github.com/n-r-w/collector/api/collector";
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
     info: { title: "Ammo Collector API";
@@ -19,7 +19,7 @@ contact: {
 name:
     "Roman Nikulenkov";
 url:
-    "https://github.com/n-r-w/ammo-collector";
+    "https://github.com/n-r-w/collector";
 };
 }
 ;

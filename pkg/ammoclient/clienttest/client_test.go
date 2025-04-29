@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/IBM/sarama"
-	queuepb "github.com/n-r-w/ammo-collector/internal/pb/api/queue"
-	"github.com/n-r-w/ammo-collector/pkg/ammoclient"
+	queuepb "github.com/n-r-w/collector/internal/pb/api/queue"
+	"github.com/n-r-w/collector/pkg/ammoclient"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/encoding/protojson"

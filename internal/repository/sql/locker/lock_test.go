@@ -3,9 +3,9 @@ package locker
 import (
 	"testing"
 
-	"github.com/n-r-w/ammo-collector/internal/config"
-	"github.com/n-r-w/ammo-collector/internal/entity"
-	"github.com/n-r-w/ammo-collector/internal/repository/sql"
+	"github.com/n-r-w/collector/internal/config"
+	"github.com/n-r-w/collector/internal/entity"
+	"github.com/n-r-w/collector/internal/repository/sql"
 	"github.com/n-r-w/ctxlog"
 	"github.com/n-r-w/pgh/v2/px/db"
 	"github.com/n-r-w/pgh/v2/txmgr"

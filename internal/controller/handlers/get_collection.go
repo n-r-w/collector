@@ -4,8 +4,8 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/n-r-w/ammo-collector/internal/entity"
-	"github.com/n-r-w/ammo-collector/internal/pb/api/collector"
+	"github.com/n-r-w/collector/internal/entity"
+	"github.com/n-r-w/collector/internal/pb/api/collector"
 	"github.com/n-r-w/ctxlog"
 	"google.golang.org/grpc/codes"
 	grpc_status "google.golang.org/grpc/status"

@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/n-r-w/ammo-collector/internal/config"
-	"github.com/n-r-w/ammo-collector/internal/pb/api/collector"
+	"github.com/n-r-w/collector/internal/config"
+	"github.com/n-r-w/collector/internal/pb/api/collector"
 	"github.com/n-r-w/grpcsrv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

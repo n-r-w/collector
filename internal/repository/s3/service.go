@@ -10,11 +10,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	s3_api "github.com/aws/aws-sdk-go-v2/service/s3"
 	smithyendpoints "github.com/aws/smithy-go/endpoints"
-	"github.com/n-r-w/ammo-collector/internal/config"
-	"github.com/n-r-w/ammo-collector/internal/usecases/apiprocessor"
-	"github.com/n-r-w/ammo-collector/internal/usecases/cleaner"
-	"github.com/n-r-w/ammo-collector/internal/usecases/finalizer"
 	"github.com/n-r-w/bootstrap"
+	"github.com/n-r-w/collector/internal/config"
+	"github.com/n-r-w/collector/internal/usecases/apiprocessor"
+	"github.com/n-r-w/collector/internal/usecases/cleaner"
+	"github.com/n-r-w/collector/internal/usecases/finalizer"
 )
 
 // Service implements S3 repository.

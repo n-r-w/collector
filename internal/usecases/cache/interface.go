@@ -3,7 +3,7 @@ package cache
 import (
 	"context"
 
-	"github.com/n-r-w/ammo-collector/internal/entity"
+	"github.com/n-r-w/collector/internal/entity"
 )
 
 //go:generate mockgen -source interface.go -destination interface_mock.go -package cache

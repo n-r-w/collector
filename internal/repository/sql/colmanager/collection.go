@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/n-r-w/ammo-collector/internal/entity"
-	sqlrepo "github.com/n-r-w/ammo-collector/internal/repository/sql"
-	"github.com/n-r-w/ammo-collector/internal/repository/sql/dbmodel"
+	"github.com/n-r-w/collector/internal/entity"
+	sqlrepo "github.com/n-r-w/collector/internal/repository/sql"
+	"github.com/n-r-w/collector/internal/repository/sql/dbmodel"
 	"github.com/n-r-w/pgh/v2"
 	"github.com/n-r-w/pgh/v2/px"
 	sq "github.com/n-r-w/squirrel"

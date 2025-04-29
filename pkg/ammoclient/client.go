@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/IBM/sarama"
-	queuepb "github.com/n-r-w/ammo-collector/internal/pb/api/queue"
+	queuepb "github.com/n-r-w/collector/internal/pb/api/queue"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
