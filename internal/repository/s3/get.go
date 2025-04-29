@@ -7,7 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	s3_api "github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/n-r-w/ammo-collector/internal/entity"
+	"github.com/n-r-w/collector/internal/entity"
 	"github.com/n-r-w/ctxlog"
 )
 

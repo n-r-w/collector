@@ -11,7 +11,7 @@ import (
 	"strconv"
 
 	grpcruntime "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/n-r-w/ammo-collector/internal/entity"
+	"github.com/n-r-w/collector/internal/entity"
 	"github.com/n-r-w/ctxlog"
 )
 

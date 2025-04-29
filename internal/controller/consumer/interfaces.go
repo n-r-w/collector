@@ -3,7 +3,7 @@ package consumer
 import (
 	"context"
 
-	"github.com/n-r-w/ammo-collector/internal/entity"
+	"github.com/n-r-w/collector/internal/entity"
 )
 
 // IHandlers is responsible for processing incoming requests.

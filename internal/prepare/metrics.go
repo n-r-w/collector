@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/n-r-w/ammo-collector/internal/config"
-	"github.com/n-r-w/ammo-collector/internal/repository/metrics/otelsrv"
-	"github.com/n-r-w/ammo-collector/internal/repository/metrics/promsrv"
-	"github.com/n-r-w/ammo-collector/internal/telemetry"
+	"github.com/n-r-w/collector/internal/config"
+	"github.com/n-r-w/collector/internal/repository/metrics/otelsrv"
+	"github.com/n-r-w/collector/internal/repository/metrics/promsrv"
+	"github.com/n-r-w/collector/internal/telemetry"
 )
 
 // InitMetrics initializes metrics.

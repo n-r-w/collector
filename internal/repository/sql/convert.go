@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/n-r-w/ammo-collector/internal/entity"
-	"github.com/n-r-w/ammo-collector/internal/repository/sql/dbmodel"
+	"github.com/n-r-w/collector/internal/entity"
+	"github.com/n-r-w/collector/internal/repository/sql/dbmodel"
 	"github.com/samber/mo"
 )
 

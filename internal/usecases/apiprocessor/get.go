@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/n-r-w/ammo-collector/internal/entity"
+	"github.com/n-r-w/collector/internal/entity"
 	"github.com/n-r-w/ctxlog"
 )
 

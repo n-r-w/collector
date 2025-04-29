@@ -3,11 +3,11 @@ package colmanager
 import (
 	"context"
 
-	"github.com/n-r-w/ammo-collector/internal/config"
-	"github.com/n-r-w/ammo-collector/internal/repository/sql"
-	"github.com/n-r-w/ammo-collector/internal/usecases/apiprocessor"
-	"github.com/n-r-w/ammo-collector/internal/usecases/cache"
-	"github.com/n-r-w/ammo-collector/internal/usecases/finalizer"
+	"github.com/n-r-w/collector/internal/config"
+	"github.com/n-r-w/collector/internal/repository/sql"
+	"github.com/n-r-w/collector/internal/usecases/apiprocessor"
+	"github.com/n-r-w/collector/internal/usecases/cache"
+	"github.com/n-r-w/collector/internal/usecases/finalizer"
 	"github.com/n-r-w/pgh/v2/px/db"
 	"github.com/n-r-w/pgh/v2/px/db/conn"
 )

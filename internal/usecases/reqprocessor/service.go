@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/n-r-w/ammo-collector/internal/controller/consumer"
-	"github.com/n-r-w/ammo-collector/internal/entity"
 	"github.com/n-r-w/bootstrap"
+	"github.com/n-r-w/collector/internal/controller/consumer"
+	"github.com/n-r-w/collector/internal/entity"
 )
 
 // Service implements kafka.Handlers, bootstrap.IService interfaces.

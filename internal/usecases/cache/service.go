@@ -7,11 +7,11 @@ import (
 	"log/slog"
 	"sync"
 
-	"github.com/n-r-w/ammo-collector/internal/config"
-	"github.com/n-r-w/ammo-collector/internal/entity"
-	"github.com/n-r-w/ammo-collector/internal/usecases/reqprocessor"
 	"github.com/n-r-w/bootstrap"
 	"github.com/n-r-w/bootstrap/executor"
+	"github.com/n-r-w/collector/internal/config"
+	"github.com/n-r-w/collector/internal/entity"
+	"github.com/n-r-w/collector/internal/usecases/reqprocessor"
 	"github.com/n-r-w/ctxlog"
 )
 

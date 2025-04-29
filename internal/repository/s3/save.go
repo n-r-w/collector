@@ -13,7 +13,7 @@ import (
 	s3_api "github.com/aws/aws-sdk-go-v2/service/s3"
 	s3_types "github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/google/uuid"
-	"github.com/n-r-w/ammo-collector/internal/entity"
+	"github.com/n-r-w/collector/internal/entity"
 	"github.com/n-r-w/ctxlog"
 )
 

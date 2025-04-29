@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/n-r-w/ammo-collector/internal/config"
-	"github.com/n-r-w/ammo-collector/internal/entity"
+	"github.com/n-r-w/collector/internal/config"
+	"github.com/n-r-w/collector/internal/entity"
 	"github.com/n-r-w/ctxlog"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"

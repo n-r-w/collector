@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/n-r-w/ammo-collector/internal/config"
+	"github.com/n-r-w/collector/internal/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/otel"

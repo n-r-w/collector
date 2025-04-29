@@ -1,4 +1,4 @@
-module github.com/n-r-w/ammo-collector
+module github.com/n-r-w/collector
 
 go 1.23.2
 

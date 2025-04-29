@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/n-r-w/ammo-collector/internal/config"
-	"github.com/n-r-w/ammo-collector/internal/telemetry"
 	"github.com/n-r-w/bootstrap"
+	"github.com/n-r-w/collector/internal/config"
+	"github.com/n-r-w/collector/internal/telemetry"
 	"github.com/n-r-w/ctxlog"
 	"github.com/n-r-w/kafkaclient/consumer"
 )
