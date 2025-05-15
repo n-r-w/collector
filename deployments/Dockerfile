@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.24-alpine AS builder
+FROM golang:1.24.3-alpine AS builder
 
 # Install required system packages
 RUN apk add --no-cache git make protoc protobuf-dev
@@ -16,11 +16,12 @@ RUN go mod download
 # Copy the entire project
 COPY . .
 
-# Build the application
-RUN go build -o /app/bin/collector ./cmd/collector
+# Build the application with explicit GOARCH and CGO_ENABLED=0 for better portability
+ARG TARGETARCH
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -o /app/bin/collector ./cmd/collector
 
 # Final stage
-FROM alpine:latest
+FROM alpine@sha256:a8560b36e8b8210634f77d9f7f9efd7ffa463e380b75e2e74aff4511df3ef88c
 
 # Install necessary runtime packages
 RUN apk add --no-cache ca-certificates tzdata

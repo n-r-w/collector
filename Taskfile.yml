@@ -107,7 +107,7 @@ tasks:
         "{{ .AMMO_COLLECTOR_DATABASE_URL }} " --src ./internal/repository/sql/dbmodel/xotempl/
 
   docker-build:
-    desc: "Build Docker image"
+    desc: "Build Docker image for current architecture"
     cmds:
       - docker build -t {{.DOCKER_IMAGE}}:{{.DOCKER_TAG}} -f deployments/Dockerfile .
       - docker tag {{.DOCKER_IMAGE}}:{{.DOCKER_TAG}} {{.DOCKER_IMAGE}}:latest
@@ -118,6 +118,23 @@ tasks:
     cmds:
       - docker push {{.DOCKER_IMAGE}}:{{.DOCKER_TAG}}
       - docker push {{.DOCKER_IMAGE}}:latest
+
+  docker-buildx-setup:
+    desc: "Setup Docker BuildX for multi-architecture builds"
+    cmds:
+      - docker buildx create --name multiarch-builder --use || true
+      - docker buildx inspect --bootstrap
+
+  docker-buildx:
+    desc: "Build and push multi-architecture Docker images"
+    deps: [docker-buildx-setup]
+    cmds:
+      - |
+        docker buildx build --platform linux/amd64,linux/arm64 \
+          --tag {{.DOCKER_IMAGE}}:{{.DOCKER_TAG}} \
+          --tag {{.DOCKER_IMAGE}}:latest \
+          --file deployments/Dockerfile \
+          --push .
 
   docker-run:
     desc: "Run docker container"
